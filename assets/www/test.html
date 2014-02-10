@@ -1,0 +1,48 @@
+<html>
+<head>
+<title>Image Array Demo</title>
+<script>
+
+var pictures = new Array(3);
+var counter = 0;
+
+function initialize(){
+  // sets up the array with some startin values
+  // Andy Harris
+  pictures[0] = new Image(300, 300);
+  pictures[0].src = "img/b.jpg";
+  pictures[1] = new Image(300, 300);
+  pictures[1].src = "img/c.jpg";
+  pictures[2] = new Image(300, 300);
+  pictures[2].src = "img/d.jpg";
+  pictures[3] = new Image(300, 300);
+  pictures[3].src = "img/e.jpg";
+
+} // end initialize 
+
+function upDate(){
+	
+  counter++;
+  if (counter > 3){
+    counter = 0;
+  } // end if
+  document.imgDisplay.src = pictures[counter].src;
+  
+} // end upDate
+
+</script>
+</head>
+
+<body onLoad = "initialize()">
+
+<center>
+<img src = "img/b.jpg" name = "imgDisplay" height = 300  width = 300>
+<br>
+<hr>
+<input type = "button" value = "next" onClick = "upDate()">
+</center>
+
+</body>
+</html>
+
+ 

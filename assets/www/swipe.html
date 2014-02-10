@@ -1,0 +1,57 @@
+<!DOCTYPE HTML> 
+<html>
+
+<head>
+<link href='css/swipe.css' rel='stylesheet' type="text/css"/>
+<link href="css/style.css" rel="stylesheet" type="text/css" />
+<script src="js/jquery-latest.js"></script>
+<script src='js/swipe.js'></script>
+</head>
+
+<body>
+<header>
+
+	<div class="back_btn">
+    	<a href="#"class="back">Back	</a>
+    </div>
+    <div class="get_opinion">
+    	<a href="#">Get Opinion!</a>
+    </div>
+    <div class="cost_btn">
+    	<a class="cost" href="#">Cost</a>
+    </div>
+ 
+</header>
+
+<div id='mySwipe' style='max-width:500px;margin:0 auto' class='swipe'>
+  <div class='swipe-wrap'>
+    <div><img src="img/b.jpg"></div>
+    <div><img src="img/c.jpg"></div>
+    <div><img src="img/d.jpg"></div>
+    <div><img src="img/e.jpg"></div>
+  </div>
+</div>
+
+<!--<div style='text-align:center;padding-top:20px;'>
+  <button onclick='mySwipe.prev()'>prev</button> 
+  <button onclick='mySwipe.next()'>next</button>
+</div>-->
+
+<footer>
+  <div class="back_btn home_btn">
+    	<a href="index.html"class="back">Home	</a>
+  </div>
+   <div class="cost_btn">
+    	<a class="cost" href="#">Submit</a>
+    </div>
+</footer>
+
+<script>
+
+		var elem = document.getElementById('mySwipe');
+		window.mySwipe = Swipe(elem, { });
+
+</script>
+
+</body>
+</html>
