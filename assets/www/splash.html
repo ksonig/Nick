@@ -1,0 +1,64 @@
+<!DOCTYPE>
+<html>
+<head>
+ <link href="css/style.css" rel="stylesheet" type="text/css" />
+ <script type="text/javascript" charset="utf-8" src="js/jquery-latest.js"></script> 
+	<script>
+
+    $(document).ready(function() {
+		
+		    var db = window.openDatabase("Database", "1.0", "PhoneGap USER", 20000);
+    	    db.transaction(populateDB, errorCB, successCB);
+		    
+						
+	});
+
+      function populateDB(tx) {
+			
+      }
+
+	  function queryDB(tx) {
+		tx.executeSql('SELECT * FROM USER', [], querySuccess, errorCB);
+	  }
+
+	  function querySuccess(tx, results) {
+		var len = results.rows.length;
+		console.log("USER table: " + len + " rows found.");
+		for (var i=0; i<len; i++){
+			
+			//alert(" ID = " + results.rows.item(i).id + " Data =  " + results.rows.item(i).data);
+			
+			if(results.rows.item(i).data){
+				
+				sessionStorage.setItem("token",results.rows.item(0).data);
+				sessionStorage.setItem("country_code",results.rows.item(1).data);
+				setTimeout("location.href='index.html'",3000);
+				
+				
+			}else{
+					
+				setTimeout("location.href='confirm-no.html'",3000);
+					
+		    }
+		}
+	  }
+
+	  function errorCB(err) {
+		console.log("Error processing SQL: "+err.code);
+		setTimeout("location.href='confirm-no.html'",3000);
+	  }
+
+	
+	 function successCB() {
+		var db = window.openDatabase("Database", "1.0", "PhoneGap USER", 20000);
+		db.transaction(queryDB, errorCB);
+	 }
+	</script>
+</head>
+<body>
+
+<div style="position:relative;margin-top:60%">
+<center><img src="img/loading.gif" /></center>
+</div>
+</body>
+</html>

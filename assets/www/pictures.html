@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Phone Gap</title>
+<link href="css/styl.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" charset="utf-8" src="js/jquery-latest.js"></script>
+<script type="text/javascript" charset="utf-8" src="js/cordova.js"></script>
+<script>
+
+	var returnNaumbers = new Array();
+	
+	document.addEventListener("deviceready",onDeviceReady,false);
+     
+	function onDeviceReady() {
+		
+		
+		 var height = window.innerHeight;
+		 height= height*6/7;
+ 		 $("#device_scale").css("height", height+"px");
+	
+		 $( "section" ).append( "<table><tr onclick='location.href=\"vote_picture.html\"'><td width='88%'><p>Abc</p></td><td width='12%'><img src='img/arrow-next.png'></td></tr></table><hr />" );	
+		 $( "section" ).append( "<table><tr onclick='location.href=\"vote_picture.html\"'><td width='88%'><p>Abc</p></td><td width='12%'><img src='img/arrow-next.png'></td></tr></table><hr />" );	
+		 $( "section" ).append( "<table><tr onclick='location.href=\"vote_picture.html\"'><td width='88%'><p>Abc</p></td><td width='12%'><img src='img/arrow-next.png'></td></tr></table><hr />" );	
+		 $( "section" ).append( "<table><tr onclick='location.href=\"vote_picture.html\"'><td width='88%'><p>Abc</p></td><td width='12%'><img src='img/arrow-next.png'></td></tr></table><hr />" );	
+		 $( "section" ).append( "<table><tr onclick='location.href=\"vote_picture.html\"'><td width='88%'><p>Abc</p></td><td width='12%'><img src='img/arrow-next.png'></td></tr></table><hr />" );	
+		 $( "section" ).append( "<table><tr onclick='location.href=\"vote_picture.html\"'><td width='88%'><p>Abc</p></td><td width='12%'><img src='img/arrow-next.png'></td></tr></table><hr />" );	
+		 $( "section" ).append( "<table><tr onclick='location.href=\"vote_picture.html\"'><td width='88%'><p>Abc</p></td><td width='12%'><img src='img/arrow-next.png'></td></tr></table><hr />" );	
+		 $( "section" ).append( "<table><tr onclick='location.href=\"vote_picture.html\"'><td width='88%'><p>Abc</p></td><td width='12%'><img src='img/arrow-next.png'></td></tr></table><hr />" );	
+		 $( "section" ).append( "<table><tr onclick='location.href=\"vote_picture.html\"'><td width='88%'><p>Abc</p></td><td width='12%'><img src='img/arrow-next.png'></td></tr></table><hr />" );	
+		 $( "section" ).append( "<table><tr onclick='location.href=\"vote_picture.html\"'><td width='88%'><p>Abc</p></td><td width='12%'><img src='img/arrow-next.png'></td></tr></table><hr />" );	
+		 $( "section" ).append( "<table><tr onclick='location.href=\"vote_picture.html\"'><td width='88%'><p>Abc</p></td><td width='12%'><img src='img/arrow-next.png'></td></tr></table><hr />" );	
+		 
+		 
+		 
+		document.addEventListener("backbutton", onBackKeyDown, false);
+	}
+	
+	 function onBackKeyDown() {
+		
+		location.href="index.html";
+      }
+	  
+	  function goBack(){
+		  
+		  location.href="index.html";
+	  }
+	
+</script>
+</head>
+
+<body>
+<header>
+	<div class="back_btn" onclick="goBack();">
+    	<a href="#"class="back">Back </a>
+    </div>
+       
+    <div class="get_opinion">
+    	<a href="#">Pictures!</a>
+    </div>
+      
+</header>
+
+<div id="device_scale" style="overflow:auto;">
+	<section></section>
+</div>
+
+</body>
+</html>

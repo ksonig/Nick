@@ -1,0 +1,54 @@
+<!doctype html>
+ 
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />
+  <link href="css/style.css" rel="stylesheet" type="text/css" />
+  <script type="text/javascript" charset="utf-8" src="js/jquery-latest.js"></script>  
+  <script src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
+  <script>
+  $(function() {
+	  
+	$( ".active_result" ).css( {"pointer-events" : "none","cursor" : "default","color" : "#333"} );
+	   
+    $( "#progressbar" ).progressbar({
+      max: 20,
+      value:false
+    });
+	var value=1,i=setInterval(function(){
+		if (value > 20) clearInterval(i)
+		value++
+		$( "#progressbar" ).progressbar('value',value)
+		if(value>20){
+			
+			 $( ".active_result" ).css( {"pointer-events" : "","cursor" : "","color" : "#fff"} );
+			 $("#vote_text").html("Completed");
+			
+			}
+	},1000)
+  });
+  </script>
+</head>
+<body>
+ 
+ <div class="process_bar">
+   
+   <center><p id="vote_text"> Voting in process ... </p></center>
+   <div id="progressbar"></div>
+   
+ </div>
+
+ 
+<footer>
+
+  <div class="back_btn home_btn">
+    	<a href="index.html"class="back">Home</a>
+  </div>
+  <div class="cost_btn">
+    	<a class="active_result" href="winner.html" >Result</a>
+  </div>
+  
+</footer>
+
+</body>
+</html>

@@ -4,119 +4,248 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Phone Gap</title>
 <link href="css/styl.css" rel="stylesheet" type="text/css" />
-
 <script type="text/javascript" charset="utf-8" src="js/jquery-latest.js"></script>
+<script type="text/javascript" charset="utf-8" src="js/cordova.js"></script>
+<script type="text/javascript" src="js/jquery.autocomplete.min.js"></script>
 <script>
+
+var cNumber = new Array(); 
+var cName   = new Array(); 
+var returnContacts = new Array();
+var search_text ="";
+var contacts = [];
+		/*[
+			{ value: 'Afghan afghani' },
+			{ value: 'Albanian lek' },
+			{ value: 'Algerian dinar' },
+			{ value: 'Angolan kwanza' },
+			{ value: 'Argentine peso' },
+			{ value: 'Armenian dram' },
+			{ value: 'Aruban florin' },
+			{ value: 'Australian dollar' },
+			{ value: 'Azerbaijani manat' },
+		];*/
+  
+//var searchArr = new array();
+//var searchArr = ["jack", "vijay", "mayank sir ji", "gyan sir", "anil sir", "nitin sir", "deepak sir", "rajeev"];
 
 $(document).ready(function(){
 	
 	var height = window.innerHeight;
+	
 	//var width = window.innerWidth;
 	
 	height= (height*2)/3+30;
- 
- $("#device_scale").css("height", height+"px");
- 
+    
+ 	$("#device_scale").css("height", height+"px");
+		
+		
+	/*
+	 *  auto complete code  
+	 */
+	 
+	     
+
+	
+  			$('#autocomplete').autocomplete({
+    			lookup: contacts,
+    			onSelect: function (suggestion) {
+      			  //$('#outputcontent').html(suggestion.value);
+    			}
+  			});
+		
+	
 });
 
-</script>
+    document.addEventListener("deviceready", onDeviceReady, false);
 
+    function onDeviceReady() {
+		
+		document.addEventListener("backbutton", onBackKeyDown, false);
+		
+        var options = new ContactFindOptions();
+        options.filter="";          // empty search string returns all contacts
+        options.multiple=true;      // return multiple results
+        filter = ["displayName","phoneNumbers"];   // return contact.displayName field
+      
+        navigator.contacts.find(filter, onSuccess, onError, options);
+    }
+
+    function onSuccess(contacts) {
+		
+		var country_code =  sessionStorage.getItem("country_code");
+		
+        for (var i=0; i<contacts.length; i++) {
+        
+          if(contacts[i].phoneNumbers != null){
+			  
+			  cName[i] = contacts[i].displayName;
+          
+		  // $( "section" ).append( "<table><tr><td><input type='checkbox' style='padding:10px' value='' /></td><td><p>"+contacts[i].displayName+"</p></td></tr></table><hr />" );	
+		   
+           for (var j=0; j<contacts[i].phoneNumbers.length; j++) {
+                //alert("Type: " + contacts[i].phoneNumbers[j].type + "\n" + "Value: "  + contacts[i].phoneNumbers[j].value + "\n" + "Preferred: "  + contacts[i].phoneNumbers[j].pref);
+			
+				
+				cNumber[i] = contacts[i].phoneNumbers[j].value;
+				cNumber[i] = cNumber[i].replace(/\s+/g, '');
+				if(cNumber[i].length == 10){
+					
+					cNumber[i] = country_code+cNumber[i];
+				}
+				
+				// alert(contacts[i].displayName);
+				// alert(cNumber[i]);
+				
+            }
+           }
+        }
+		
+			var token = sessionStorage.getItem("token");
+	
+	        var formContent = 'user[contact]='+cNumber;
+			
+			alert(token);
+			alert(formContent);
+			
+			$.ajax({
+            type:"POST",
+            beforeSend: function (request)
+            {
+               request.setRequestHeader("Authorization", token);
+            },
+            url: "http://192.168.0.121:3000/api/v1/friends.json",
+            data: formContent,
+            processData: false,
+            success: function(data) {	
+               
+			   returnContacts = data.contact;
+			   
+			   sessionStorage.setItem("returnContacts",returnContacts);
+			   
+			   alert(data.contact);
+			   
+			   for(var i=0; i < returnContacts.length; i++){
+				   
+				  // alert(returnContacts[i]);
+				   
+				   for(var j = 0; j<cNumber.length; j++){
+					   
+					   //  alert(cNumber[j]);
+					   
+					  if("+"+returnContacts[i] == cNumber[j]){
+						  
+						  alert(cName[j]);
+						 $( "section" ).append( "<table><tr><td width='10%'><input type='checkbox' style='padding:10px; width:50px; height:10px; ' value='' /></td><td width='90%'><p>"+cName[j]+"</p></td></tr></table><hr />" );	
+		 
+						 // searchArr[i] = cName[j];
+						 
+					   } 
+					}
+			     }
+				 
+			  // var db = window.openDatabase("Database", "1.0", "PhoneGap USER", 20000);
+    		  // db.transaction(populateDB, errorCB, successCB);
+			   
+            },
+			error: function (xhr, ajaxOptions, thrownError) {
+            alert(xhr.status);
+			alert(thrownError);
+      }
+			
+    });
+	
+	   var db = window.openDatabase("Database", "1.0", "PhoneGap USER", 20000);
+       db.transaction(populateDB, errorCB, successCB);
+			  
+    };
+
+   
+    function onError(contactError){
+        alert('onError!');
+    }
+	
+	function onBackKeyDown(){
+		
+		location.href="index.html";
+    }
+	
+	
+	
+	function searchContact(){
+		
+		search_text = $("#autocomplete").val();
+		var db = window.openDatabase("Database", "1.0", "PhoneGap USER", 20000);
+		db.transaction(queryDB, errorCB);
+		
+	}
+	
+	
+	
+	  function populateDB(tx) {
+			tx.executeSql('DROP TABLE IF EXISTS CONTACT');
+			tx.executeSql('CREATE TABLE IF NOT EXISTS CONTACT (id unique, data)');
+			for(var i = 0; i< cName.length; i++){
+			
+				tx.executeSql('INSERT INTO CONTACT (id, data) VALUES ('+i+', "'+cName[i]+'")');
+				//alert(cName[i]);
+			}	
+      }
+
+	  function queryDB(tx) {
+		//window.location = "index.html"; 
+		
+		alert("success called");
+				
+		tx.executeSql('SELECT * FROM CONTACT WHERE Data LIKE "%'+search_text+'%"', [], querySuccess, errorCB);
+	  }
+
+      function querySuccess(tx, results) {
+		var len = results.rows.length;
+		console.log("CONTACT table: " + len + " rows found.");
+		for (var i=0; i<len; i++){
+			
+			alert(" ID = " + results.rows.item(i).id + " Data =  " + results.rows.item(i).data);
+			
+			contacts.push({ value:  results.rows.item(i).data });
+		 
+
+				
+		}
+	  }
+
+	  function errorCB(err) {
+		console.log("Error processing SQL: "+err.code);
+	  }
+
+	
+	function successCB() {
+		//var db = window.openDatabase("Database", "1.0", "PhoneGap USER", 20000);
+		//db.transaction(queryDB, errorCB);
+	}
+	  
+	  
+	
+
+</script>
 </head>
 
 <body>
 <header>
 	<div class="back_btn friend_list_back_btn">
-    	<a href="#"class="back">Back</a>
+    	<a href="index.html"class="back">Back</a>
     </div>
        
     <div class="cost_btn friend_list_cost_btn">
-    	<input type="text" placeholder="Search"  />
+    	<input type="text" placeholder="Search" name="currency" class="biginput" id="autocomplete" />
+        <input type="button" onclick="searchContact()" class="back" value="Go" style="border: medium none; float: left; width: 20%; margin-left: 5px; cursor:pointer;" />
     </div> 
  
 </header>
 
 <div id="device_scale" style="overflow:auto;">
 <section>
-	<p>
-    	<input type="checkbox" value="" />
-        <span>Jhon</span>
-    </p>
-	<p>
-    	<input type="checkbox" value="" />
-        <span>Jhon</span>
-    </p>
-	<p>
-    	<input type="checkbox" value="" />
-        <span>Jhon</span>
-    </p>
-	<p>
-    	<input type="checkbox" value="" />
-        <span>Jhon</span>
-    </p>
-	<p>
-    	<input type="checkbox" value="" />
-        <span>Jhon</span>
-    </p>
-	<p>
-    	<input type="checkbox" value="" />
-        <span>Jhon</span>
-    </p>
-	<p>
-    	<input type="checkbox" value="" />
-        <span>Jhon</span>
-    </p>
-	<p>
-    	<input type="checkbox" value="" />
-        <span>Jhon</span>
-    </p>
-	<p>
-    	<input type="checkbox" value="" />
-        <span>Jhon</span>
-    </p>
-	<p>
-    	<input type="checkbox" value="" />
-        <span>Jhon</span>
-    </p>
-	<p>
-    	<input type="checkbox" value="" />
-        <span>Jhon</span>
-    </p>
-	<p>
-    	<input type="checkbox" value="" />
-        <span>Jhon</span>
-    </p>
-	<p>
-    	<input type="checkbox" value="" />
-        <span>Jhon</span>
-    </p>
-	<p>
-    	<input type="checkbox" value="" />
-        <span>Jhon</span>
-    </p>
-	<p>
-    	<input type="checkbox" value="" />
-        <span>Jhon</span>
-    </p>
-	<p>
-    	<input type="checkbox" value="" />
-        <span>Jhon</span>
-    </p>
-	<p>
-    	<input type="checkbox" value="" />
-        <span>Jhon</span>
-    </p>
-	<p>
-    	<input type="checkbox" value="" />
-        <span>Jhon</span>
-    </p>
-	<p>
-    	<input type="checkbox" value="" />
-        <span>Jhon</span>
-    </p>
-	<p>
-    	<input type="checkbox" value="" />
-        <span>Jhon</span>
-    </p>                                                                            
+	                                   
 </section>
 </div>
 

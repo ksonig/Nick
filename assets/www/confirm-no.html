@@ -1,0 +1,146 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Phone Gap</title>
+<link href="css/style1.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" charset="utf-8" src="js/jquery-latest.js"></script>  
+<script>
+
+var text;
+var number;
+var selectCountry;
+var token;
+
+$(document).ready(function() {
+	
+	selectCountry = $(".select_country").val();
+	$("#contact_code").html(selectCountry);
+	
+	$( ".select_country" ).change(function() {
+		selectCountry = $(".select_country").val();
+  		$("#contact_code").html(selectCountry);
+		});
+	
+	$(".confirm_no_button").click(function(){
+		
+		text = $(".name_input").val();
+		number = $(".number_input").val();
+		
+	if(text == "" || number ==""){
+		
+		alert("username or mob number can't be empty");
+		  
+		}else if(!validateMobile(number)){
+			
+			 alert("It is not valid mobile number.input 10 digits number!");
+			
+			}else{
+					var formContent = 'user[phone]='+selectCountry+number+'&user[name]='+text;
+					alert(formContent);
+					$.post("http://192.168.0.121:3000/api/v1/registration.json",formContent,function(data){
+					
+						token = data.token;
+						//alert(token);
+						sessionStorage.setItem("token",token);
+						sessionStorage.setItem("country_code",selectCountry);
+						
+						var db = window.openDatabase("Database", "1.0", "PhoneGap USER", 20000);
+    					db.transaction(populateDB, errorCB, successCB);
+	 
+						
+					
+				   }).fail( function(xhr, textStatus, errorThrown) {
+					
+					 alert(xhr.responseText);
+					// lightbox();
+					 
+				   });
+	        }
+	});
+	
+  });
+  
+  function validateMobile(mobile) {
+       
+        var pattern = /^\d{10}$/;
+
+        if (pattern.test(mobile)) {
+           
+            return true;
+        }
+       
+        return false;
+    }
+
+     function lightbox(){
+          document.getElementById('light').style.display='block';
+          document.getElementById('fade').style.display='block';
+      }  
+	 function closeLightbox(){
+		 
+		 document.getElementById('light').style.display='none';
+         document.getElementById('fade').style.display='none';
+	  }
+	  
+	  
+	  
+	  function populateDB(tx) {
+			tx.executeSql('DROP TABLE IF EXISTS USER');
+			tx.executeSql('CREATE TABLE IF NOT EXISTS USER (id unique, data)');
+			tx.executeSql('INSERT INTO USER (id, data) VALUES (1, "'+token+'")');
+			tx.executeSql('INSERT INTO USER (id, data) VALUES (2, "'+selectCountry+'")');
+			
+      }
+
+	  function queryDB(tx) {
+		window.location = "index.html"; 
+	  }
+
+	  function errorCB(err) {
+		console.log("Error processing SQL: "+err.code);
+	  }
+
+	
+	function successCB() {
+		var db = window.openDatabase("Database", "1.0", "PhoneGap USER", 20000);
+		db.transaction(queryDB, errorCB);
+	}
+	  
+	  
+
+</script>
+</head>
+<body>
+
+	<!-- start  code   for   popup   -->
+				
+        <div id="light" class="confirm_popup_setting" style="background-image:url('img/popup_bg.jpg');">
+          <center><p>Error!</p></center>
+          <center><div style="position:relative;margin-top:30%;"><button onclick="closeLightbox()">Close</button></center>
+        </div>
+        <div id="fade" class="confirm_no_popup"></div>
+				
+	 <!--  end  code   for   popup -->
+
+	<div class="confirm_popup">
+        <div class="confirm_text">
+            Please confirm your country code and enter your phone number, name.
+        </div>
+        <div class="select_box">
+            <select class="select_country">
+                 <option value="+1">America</option>
+                <option value="+61">Australia</option>
+                <option value="+86">China</option>
+                <option value="+91">India</option>
+            </select>
+        </div>
+        <p class="confirm_no">
+            <span id="contact_code"></span>
+            <input type="number" class="number_input" placeholder="" />
+            <input class="name_input" type="text" placeholder="Enter Name" />
+            <button class="confirm_no_button" type="button">Send</button>
+        </p>
+   </div>     
+</body>
+</html>

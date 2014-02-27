@@ -1,48 +1,86 @@
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>Image Array Demo</title>
-<script>
 
-var pictures = new Array(3);
-var counter = 0;
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="css/style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" charset="utf-8" src="js/cordova.js"></script>
+<script type="text/javascript" charset="utf-8" src="js/jquery-latest.js"></script>
+<script type="text/javascript" charset="utf-8">
 
-function initialize(){
-  // sets up the array with some startin values
-  // Andy Harris
-  pictures[0] = new Image(300, 300);
-  pictures[0].src = "img/b.jpg";
-  pictures[1] = new Image(300, 300);
-  pictures[1].src = "img/c.jpg";
-  pictures[2] = new Image(300, 300);
-  pictures[2].src = "img/d.jpg";
-  pictures[3] = new Image(300, 300);
-  pictures[3].src = "img/e.jpg";
-
-} // end initialize 
-
-function upDate(){
+	    var imageGroup = [];
 	
-  counter++;
-  if (counter > 3){
-    counter = 0;
-  } // end if
-  document.imgDisplay.src = pictures[counter].src;
-  
-} // end upDate
+		function browseCameraRoll() 
+		{
+			
+			navigator.camera.getPicture( onPhotoLoadSuccess, onFail,
+				{
+				quality: 50,
+				destinationType: Camera.DestinationType.DATA_URL,
+				encodingType: Camera.EncodingType.JPEG,
+				} );
+		}
+		 
+		function onPhotoLoadSuccess( imageData )
+		{
+			
+			
+			imageGroup.push(imageData);
+			
+			
+			
+			var url = 'http://192.168.0.109:3000/api/v1/registration.json';
+			var params = {  		
+							 "user" : {
+                                           "email" : "ksonig5@yopmail.com",
+                                           "password" : "grepruby001",
+                                           "firstname" : "grep",
+                                           "phone_number" : "0898989994"
+                                         },
+                              "book" : {
+                                           "publisher" : "abc",
+                                           "style" : "abc",
+                                           "age" : "22",
+                                           "cover" : "xyz",
+                                           "isbn" : "12345",
+                                           "image" : { "file" : imageGroup[0],
+ 
+                                                         "original_filename":"new_image.jpeg" ,
+                                                         "filename" : "new_image.jpeg" },
+                                           "promocode" : "452001"
+                                         }
+                              };
+		 
+			$.ajax({
+				   type: "POST",
+				   url: url,
+				   data: params,
+				   success: function (returndata) 
+				   {
+					alert( 'back from POST: ' + returndata ); 
+					//grayscaleImage.src = "data:image/png;base64," + returndata.GrayscaleVersion
+				   }} );
+		}
+		function onFail(message) {
+				 
+			  alert('Failed because: ' + message);
+			  
+			}
+	
 
-</script>
+
+ </script>
 </head>
-
-<body onLoad = "initialize()">
+<body>
 
 <center>
-<img src = "img/b.jpg" name = "imgDisplay" height = 300  width = 300>
-<br>
-<hr>
-<input type = "button" value = "next" onClick = "upDate()">
+    <span id="capture_button">
+    <a href="#" onclick="browseCameraRoll();">
+        <img name = "imgDisplay" src="img/capture.png" />
+    </a>
+    </span>
 </center>
+
 
 </body>
 </html>
-
- 

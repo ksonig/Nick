@@ -3,27 +3,36 @@
 <head>
 
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<link href="css/style.css" rel="stylesheet" type="text/css" />
-<script type="text/javascript" charset="utf-8" src="js/cordova.js"></script>
-<script type="text/javascript" charset="utf-8" src="js/jquery-latest.js"></script>
-<script type="text/javascript" charset="utf-8">
+
+ <link href="css/style.css" rel="stylesheet" type="text/css" />
+ <link rel="stylesheet" href="css/jquery-mob-min.css" />
+ <script type="text/javascript" charset="utf-8" src="js/cordova.js"></script>
+ <script type="text/javascript" charset="utf-8" src="js/jquery-latest.js"></script>    
+ <script type="text/javascript" src="js/jquery-mobile-min.js"></script>
+ <script type="text/javascript" charset="utf-8">
 
 	var pictures = new Array(10);
 	var capture_counter = 0;
 	var img_counter = 0;
     var destinationType;
 	var pictureSource;  
+	var swipeNext = 0;
+	var swipePrev = 0;
+	var picArr = [];
+	var token;
+	var imgDisplay;
 	
-	
-  document.addEventListener("deviceready",onDeviceReady,false);
+    document.addEventListener("deviceready",onDeviceReady,false);
      
 	function onDeviceReady() {
 		
+		  document.addEventListener("backbutton", onBackKeyDown, false);
+		  
           pictureSource = navigator.camera.PictureSourceType;
           destinationType = navigator.camera.DestinationType;
+		  imgDisplay = document.getElementById('imgDisplay');
 		  
 		  pictures[0] = new Image(300, 300);
-		  
 		  pictures[1] = new Image(300, 300);
 		  pictures[2] = new Image(300, 300);
 		  pictures[3] = new Image(300, 300);
@@ -34,31 +43,94 @@
 		  pictures[8] = new Image(300, 300);
 		  pictures[9] = new Image(300, 300);
 		  
+		  
 		  $(".next_btn").hide();
 		  $(".previous_btn").hide();
-    }
-	
-	
-	
-	function onPhotoDataSuccess(imageData) {
-		
-      var imgDisplay = document.getElementById('imgDisplay');
-	  
-      var src_data = "data:image/jpeg;base64," + imageData;
-	  
-	   pictures[capture_counter].src = src_data;
-	   
-	   capture_counter++;
-	   
-	   $(".next_btn").show();
-	  
+		  $("#capture_Photo").bind( "click",capturePhoto );
+		  
+		  token = sessionStorage.getItem("token");
+		 
+		  
+		  $(".active_submit").click(function(){
+			  
+			  alert(token);  	
+			  
+			if(picArr.length<2){
+				
+				alert("Can't send less then two images!");
+				
+			}else{
+				  
+			var url = 'http://192.168.0.109:3000/api/v1/registration.json';
+			var params = {  		
+							 "user" : {
+                                           "email" : "ksonig6@yopmail.com",
+                                           "password" : "grepruby001",
+                                           "firstname" : "grep",
+                                           "phone_number" : "0898989995"
+                                         },
+                              "book" : {
+                                           "publisher" : "abc",
+                                           "style" : "abc",
+                                           "age" : "22",
+                                           "cover" : "xyz",
+                                           "isbn" : "12345",
+                                           "image" : { "file" : picArr[0],
+										   				"other_images":picArr,
+                                                         "original_filename":"new_image.jpeg" ,
+                                                         "filename" : "new_image.jpeg" },
+                                           "promocode" : "452001"
+                                         }
+                              };
+		 
+			$.ajax({
+				   type: "POST",
+				   url: url,
+				   data: params,
+				   success: function (returndata) 
+				   {
+					alert( 'back from POST: ' + returndata ); 
+					//grayscaleImage.src = "data:image/png;base64," + returndata.GrayscaleVersion
+				   }} );
+			
+	 
+	      if(swipeNext > 0){
+	      	location.href="process.html";
+		  }
+	  }
+	});
+			
     }
 	
 	function capturePhoto() {
-		//alert("hiiii");
-     navigator.camera.getPicture(onPhotoDataSuccess, onFail, { quality: 50,destinationType: destinationType.DATA_URL });
-   
+		navigator.camera.getPicture( onPhotoDataSuccess, onFail,
+				{
+				quality: 50,
+				destinationType: Camera.DestinationType.DATA_URL,
+				encodingType: Camera.EncodingType.JPEG,
+				});
     }
+	
+	function onPhotoDataSuccess(imageData) {
+			  
+	   var src_data = "data:image/jpeg;base64," + imageData;
+		
+	   picArr.push(imageData);
+	   
+	   pictures[capture_counter].src = src_data;
+	   	   
+	   capture_counter++;
+	   
+	   $(".next_btn").show();
+	   
+	   swipeNext = 1;
+	   
+	   $( ".active_submit" ).css( "background" , "#D27839");
+	   
+	   
+    }
+	
+	
 	
 	 function onFail(message) {
 		 
@@ -67,42 +139,138 @@
     }
 	
 	
+	
 	 function nextImage(){
-	  
-	  document.imgDisplay.src = pictures[img_counter].src;
-	  
-	  img_counter++;
-	  
-	  if(img_counter == capture_counter){
+		 
+      $("#capture_Photo").unbind( "click",capturePhoto );
+		 
+	  if(img_counter+1 == capture_counter){
 		  
 		  $(".next_btn").hide();
+		  swipeNext = 0;
 		  
-		  }
+		     document.imgDisplay.src = pictures[img_counter].src;
 	  
-	   $(".previous_btn").show();
+		  }else{
+			  
+		     document.imgDisplay.src = pictures[img_counter].src;
+	  
+	      img_counter++;
+		  	  
+	      }
+	  
+	   		$(".previous_btn").show();
+	   		swipePrev = 1;
 	   
 	  } 
 	  
 	  function previousImage(){
 	  
-	  --img_counter;
-	  
-	  document.imgDisplay.src = pictures[img_counter].src;
-	  
-	  if(img_counter == 0){
+		  if(img_counter == 0){
+			  
+			document.imgDisplay.src = "img/capture.png";
+						
+			$(".previous_btn").hide();
+			swipePrev = 0;
+			
+			$("#capture_Photo").bind( "click",capturePhoto );
+			  
+		  }else{
+				  
+			img_counter--;
 		  
-		// location.href="option.html"
-		  
+			document.imgDisplay.src = pictures[img_counter].src;	  
+				  
 		  }
-		  
-	 $(".next_btn").show();  
+			  
+		  $(".next_btn").show();  
+		  swipeNext = 1;
 	  
 	  }
+	  
+	  /*
+	   *  swipe next feature
+	   */
+	   
+	  $(document).off('swipeleft').on('swipeleft', function(event){   
+       	
+		if(swipeNext == 1){
+			
+			if(img_counter+1 == capture_counter){
+			  
+			  $(".next_btn").hide();
+			  swipeNext = 0;
+			  
+			  document.imgDisplay.src = pictures[img_counter].src;
+		  
+			  }else{
+				  
+			  document.imgDisplay.src = pictures[img_counter].src;
+		  
+			  img_counter++;
+			  
+			  }
+			  
+			  $(".previous_btn").show();
+			  swipePrev = 1;
+		 }
+	  });
+
+	  $(document).off('swiperight').on('swiperight',  function(event){  
+        // alert("hiiii");
+		if(swipePrev == 1){
+			if(img_counter == 0){
+				  
+				document.imgDisplay.src = "img/capture.png";
+							
+				$(".previous_btn").hide();
+				swipePrev = 0;
+				
+				$("#capture_Photo").bind( "click",capturePhoto );
+				  
+			  }else{
+					  
+				img_counter--;
+			    
+				document.imgDisplay.src = pictures[img_counter].src;	  
+					  
+			    $(".next_btn").show();  
+			    swipeNext = 1;
+			 
+			  }
+				
+		  }
+	  });
+	  
+	  function onBackKeyDown() {
+		
+		location.href="index.html";
+      }
+	  
+	  function goBack(){
+		
+		location.href="index.html";
+	  }
+	  function goGold(){
+		
+		location.href="gold.html";
+	  }
+	  
+	  function lightbox(){
+          document.getElementById('light').style.display='block';
+          document.getElementById('fade').style.display='block';
+      }  
+	 function closeLightbox(){
+		 
+		 document.getElementById('light').style.display='none';
+         document.getElementById('fade').style.display='none';
+	  }
+	
  </script>
 </head>
 <body>
 <header>
-	<div class="back_btn">
+	<div class="back_btn" onclick="goGold();">
     	<a href="#"class="back">Back </a>
     </div>
        
@@ -110,10 +278,28 @@
     	<a href="#">Get Opinion!</a>
     </div>
       
-    <div class="cost_btn">
+    <div class="cost_btn" onclick="lightbox()">
     	<a class="cost" href="#">Cost</a>
     </div>
 </header>
+
+
+	<!-- start  code   for   popup   -->
+				
+        <div id="light" class="confirm_popup_setting" style="background-image:url('img/popup_bg.jpg');">
+          <center>
+          		  <p> 3 gold for 2 photos </p>
+                  <p> 4 gold for 3 photos </p>
+                  <p> 5 gold for 4 photos </p>
+                  <p> 6 gold for 5 photos </p>
+		</center>
+          <center><div style="position:relative;margin-top:5%;width:50%;"><button onclick="closeLightbox()">Close</button></center>
+        </div>
+        <div id="fade" class="confirm_no_popup"></div>
+				
+	 <!--  end  code   for   popup -->
+
+
 
 <div class="next_btn">
 	<img style="width:70%;height:8%;" src="img/next.png" onclick="nextImage()"/>
@@ -125,18 +311,18 @@
 
 <center>
     <span id="capture_button">
-    <a href="#" onclick="capturePhoto();">
+    <a href="#" id="capture_Photo">
         <img style="width:320px; height:370px;" id="imgDisplay" name = "imgDisplay" src="img/capture.png" />
     </a>
     </span>
 </center>
 
 <footer>
-  <div class="back_btn home_btn">
-    	<a href="index.html"class="back">Home</a>
+  <div class="back_btn home_btn" onclick="goBack()">
+    	<a href="#"class="back">Home</a>
   </div>
    <div class="cost_btn">
-    	<a class="cost" href="#">Submit</a>
+    	<a class="active_submit" href="">Submit</a>
   </div>
 </footer>
 </body>

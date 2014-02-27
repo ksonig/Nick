@@ -4,6 +4,7 @@
 body{
 	margin:0;
 	padding:0;
+	height:100%;
 	background:url(../img/bg13.jpg) repeat-x;
 	font-family:Arial, Helvetica, sans-serif;
 }
@@ -23,7 +24,7 @@ header{
 	margin:0;
 	padding:0;
 	width:20%;
-  text-align:center;
+    text-align:center;
 	float:left;
 }
 .back{
@@ -77,6 +78,33 @@ header{
     box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
 }
 .cost:hover{
+  color:#333;
+}
+.active_result{
+	margin:20px 0 0 0;
+	padding:5px 6px;
+	background:#D27839;
+	font-size:14px;
+	border-radius:4px;
+	text-decoration:none;
+    display:inline-block;
+    box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+}
+.active_result:hover{
+  color:#333;
+}
+
+.active_submit{
+	margin:20px 0 0 0;
+	padding:5px 6px;
+	font-size:14px;
+	border-radius:4px;
+	text-decoration:none;
+    display:inline-block;
+    box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+.active_submit:hover{
   color:#333;
 }
 .home{
@@ -152,7 +180,7 @@ footer{
 }
 @media(min-width:320px) and (max-width:700px){
 .center_btn{
-	margin:100px auto 0;
+	margin:70px auto 0;
 	width:80%;
 }
 .btn{
@@ -172,4 +200,90 @@ footer{
 	position:absolute;
 	top:48%;
 	left:2%;
+}
+.ui-page.ui-body-c.ui-page-active{
+	background:none !important;
+}
+.ui-body-c .ui-link{
+	text-shadow:none !important;
+	color:#fff !important;
+	font-weight:normal !important;
+}
+.confirm_area{
+	margin-top:20%;
+	margin-left:9%;
+	border:1px solid #a1a1a1;
+	padding:20px; 
+	background:rgba(0,0,0,0.30);
+	width:70%;
+	height:65%;
+	border-radius:2px;
+	color:#FFF;
+	font-size:17px;
+}	
+.select_country{
+	
+	width : 98%;
+	
 	}
+.process_bar{
+	position:relative;
+	margin-top:100%;
+	margin-left:10%; 
+	margin-right:10%;
+	}
+
+/**picture page css**/
+
+.points{
+	min-width:20px;
+	height:20px;
+	display:block;
+	margin:23px 8px 0 0;
+	padding:0 0 0 28px;
+	float:right;
+	background:url(../img/coin.png) no-repeat;
+	color:#fff;
+	font-size:14px;
+	font-weight:bold;
+	background-size: 20px auto;
+	
+}
+.gold_gif{
+	text-align:center;
+	margin-top:25%;
+}
+
+
+/*
+   css for popup box
+*/
+
+
+.confirm_no_popup
+	{
+			display: none;
+			position: absolute;
+			top: 0%;
+			left: 0%;
+			width: 100%;
+			height: 100%;
+			background-color: black;
+			z-index:1001;
+			-moz-opacity: 0.8;
+			opacity:.80;
+			filter: alpha(opacity=80);
+	}
+.confirm_popup_setting
+	{
+			display: none;
+			position: absolute;
+			top: 25%;
+			left: 7%;
+			width: 85%;
+			height: 40%;
+			background-color: #F52887;
+			z-index:1002;
+			overflow: auto;
+	}
+	
