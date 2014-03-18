@@ -5,15 +5,68 @@
 <title>PhoneGap</title>
 <link href="css/style.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript" charset="utf-8" src="js/cordova.js"></script>
+<script type="text/javascript" charset="utf-8" src="js/jquery-latest.js"></script> 
 <script type="text/javascript" charset="utf-8">
 
-    
+	var cNumber = new Array(); 
+	var cName   = new Array(); 
+	var token;
+	
+    counterStatus = 1; 
+	
     document.addEventListener("deviceready", onDeviceReady, false);
 
- 
     function onDeviceReady() {
+    
+         token = sessionStorage.getItem("token");
+		
+		var global_url = 'http://image-voting.herokuapp.com/api/v1/';
+		//var global_url = 'http://192.168.0.108:3000/api/v1/';
+		sessionStorage.setItem("global_url",global_url);
+		
+		increaseCounter();
 		
         document.addEventListener("backbutton", onBackKeyDown, false);
+		
+		if(sessionStorage.getItem("goFromProcess") == "true"){
+			
+	    counterStatus =  sessionStorage.getItem("counterStatus");
+		/* code for  update friend*/	
+		var options = new ContactFindOptions();
+        options.filter="";          // empty search string returns all contacts
+        options.multiple=true;      // return multiple results
+        filter = ["displayName","phoneNumbers"];   // return contact.displayName field
+      
+        navigator.contacts.find(filter, onSuccess, onError, options);
+						
+		}
+		
+		/*  code for vote alert */
+		
+		
+		 var alert_url = sessionStorage.getItem("global_url")+'photos/sender_list.json';
+		 var params = "";
+		 
+		
+			$.ajax({
+					   type: "GET",
+					   url: alert_url,
+					   beforeSend: function (request)
+					   {
+						 request.setRequestHeader("Authorization", token);
+					   },
+					   data: params,
+					   success: function (returndata) 
+					   {
+						   $("#vote_btn").html(" Earn Gold! ["+returndata.length+"]");
+					   },
+					   
+					   error: function (xhr, ajaxOptions, thrownError) 
+					   {
+						//alert("Error :"+thrownError);
+					   }
+					   					   
+				   });
 		
     }
 
@@ -21,11 +74,88 @@
 		
 		navigator.app.exitApp();
     }
+	function goOption(){
+		
+	/*	if(sessionStorage.getItem("goFromProcess") == "true"){
+			
+			sessionStorage.setItem("goFromProcess", "false");
+			
+			sessionStorage.setItem("goFromIndex", "true");
+			
+			sessionStorage.setItem("counterStatus", counterStatus);
+			
+			//alert(counterStatus);
+			
+			//location.href="process.html";
+			
+			location.href="option.html";
+			
+		}else{*/
+				
+			location.href="option.html";
+		//}
+	}
+
+    function onSuccess(contacts) {
+		
+		var country_code =  sessionStorage.getItem("country_code");
+		
+        for (var i=0; i<contacts.length; i++) {
+        
+          if(contacts[i].phoneNumbers != null){
+			  
+			  cName[i] = contacts[i].displayName;
+            
+           for (var j=0; j<contacts[i].phoneNumbers.length; j++) {
+					
+				cNumber[i] = contacts[i].phoneNumbers[j].value;
+				cNumber[i] = cNumber[i].replace(/\s+/g, '');
+				if(cNumber[i].length == 10){
+					
+					cNumber[i] = country_code+cNumber[i];
+				}
+				
+            }
+           }
+        }
+	
+	        var formContent = 'user[contact]='+cNumber;
+			
+			//alert(token);
+			//alert(formContent);
+			
+			$.ajax({
+            type:"POST",
+            beforeSend: function (request)
+            {
+               request.setRequestHeader("Authorization", token);
+            },
+            url: sessionStorage.getItem("global_url")+'friends.json',
+            data: formContent,
+            processData: false,
+            success: function(data) {},
+			error: function (xhr, ajaxOptions, thrownError) {
+            //alert(xhr.status);
+			//alert(thrownError);
+      }
+			
+    });
+ 			  
+ };
+	
+	
+	
+	
+	
+	function increaseCounter(){
+	 	
+	 	counterStatus++;
+		setTimeout(increaseCounter,6000);
+	}
 
     </script>
     
 </head>
-
 <body>
 	<header>
     	<p class="home">
@@ -33,26 +163,30 @@
         </p>
     </header>
     <div class="center_btn">
-    	<div class="btn">
-        	<a href="option.html">
+    	<div class="btn" >
+        	<a href="#" onclick="goOption()">
         		Get Opinions!
             </a>    
         </div>
-        <div class="btn">
+        
+        <!--<div class="btn">
         	<a href="earn_gold.html">
         		Earn Gold!
             </a>    
+        </div>-->
+        
+        <div class="btn">
+        	<a href="pictures.html" id="vote_btn">
+        		
+            </a>    
         </div>
+        
         <div class="btn">
         	<a href="friend_list.html">
         		Friends List!
             </a>    
         </div>
-        <div class="btn">
-        	<a href="pictures.html">
-        		Pictures!
-            </a>    
-        </div>
+        
     </div>
 </body>
 </html>

@@ -10,17 +10,15 @@
  <script type="text/javascript" charset="utf-8" src="js/jquery-latest.js"></script>    
  <script type="text/javascript" src="js/jquery-mobile-min.js"></script>
  <script type="text/javascript" charset="utf-8">
-
+    
 	var pictures = new Array(10);
-	var capture_counter = 0;
-	var img_counter = 0;
-    var destinationType;
-	var pictureSource;  
 	var swipeNext = 0;
 	var swipePrev = 0;
 	var picArr = [];
+	var imgArr = [];
 	var token;
-	
+	var no_of_coins;
+	var addCoin;
 	
     $(document).ready(function() {
 		  
@@ -42,39 +40,74 @@
 		  
 		  token = sessionStorage.getItem("token");
 		  		  
-		   /* var formContent = 'user[picArr]='+picArr+"&user[contact]="+sessionStorage.getItem("returnContacts");
+		    var formContent = '';
 			
-			alert(token);
-			alert(picArr.length+"pictures");
+			//alert(token);
 			
-			$.ajax({
+			/*$.ajax({
             type:"POST",
             beforeSend: function (request)
             {
                request.setRequestHeader("Authorization", token);
             },
-            url: "http://192.168.0.121:3000/api/v1/friends.json",
+            url: "http://192.168.0.121:3000/api/v1/coins.json",
             data: formContent,
             processData: false,
             success: function(data) {	
 			   
 			   alert(data);
 			   
-			   location.href="process.html";
-			   			   
+			   var tempArr = data.imageArray; 
+			   
+			   for(var i=0; i<tempArr.length; i++ ){
+				   
+				   imgArr.push(tempArr[i]);
+				   				   
+			   }
+			  
+			   
             },
 			error: function (xhr, ajaxOptions, thrownError) {
             alert(xhr.status);
 			alert(thrownError);
-      }
+          }
 			
-     });*/
-	      $(".active_submit").click(function(){
+         });
+	 
+		  $(".active_submit").click(function(){
 			  
-			   if(swipeNext == 1){
-	      	     location.href="index.html";
-		       }
-	      });
+			     var formContent1 = 'user[coin]='+addCoin;
+				 
+				  $.ajax({
+					type:"POST",
+					beforeSend: function (request)
+					{
+					   request.setRequestHeader("Authorization", token);
+					},
+					url: "http://192.168.0.121:3000/api/v1/coins.json",
+					data: formContent1,
+					processData: false,
+					success: function(data) {	
+					 
+					   no_of_coins =  sessionStorage.setItem("coins",data.coins);
+					   location.href="index.html";
+								   
+					},
+					error: function (xhr, ajaxOptions, thrownError) {
+					alert(xhr.status);
+					alert(thrownError);
+			       }
+			    });
+		   
+	    });*/
+		 $("#imgDisplay").click(function(){
+			 
+			var val = $(this).attr('value');	
+			//alert(val);		 
+			 
+		 });
+		
+		
      });
 	
 	
@@ -152,9 +185,7 @@
 
 <center>
     <span id="">
-    <a href="#" id="">
-        <img style="width:320px; height:370px;" id="imgDisplay" name = "imgDisplay" src="img/a.jpg" />
-    </a>
+        <img style="width:320px; height:370px;" id="imgDisplay" value="1" name = "imgDisplay" src="img/a.jpg"/>
     </span>
 </center>
 

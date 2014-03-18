@@ -8,15 +8,17 @@
 <script type="text/javascript" charset="utf-8" src="js/jquery-latest.js"></script>  
 <script type="text/javascript" charset="utf-8">
 
+  var coins;
    
-    document.addEventListener("deviceready", onDeviceReady, false);
-
- 
-    function onDeviceReady() {
+    $(function() {
 		
         document.addEventListener("backbutton", onBackKeyDown, false);
 		
-    }
+		coins = sessionStorage.getItem("coin_count");
+		
+		$(".points").html(coins);
+		
+    });
 
     function onBackKeyDown() {
 		

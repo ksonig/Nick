@@ -333,7 +333,8 @@ section p input[type="checkbox"]{
     font-weight: bold;
     left: 15%;
     margin: 4px 0;
-    padding: 10px 19px;
+    padding: 20px 19px;
+	text-align: center;
 }
 
 
@@ -378,6 +379,7 @@ body{
 
 .confirm_no_popup
 	{
+		
 			display: none;
 			position: absolute;
 			top: 0%;
@@ -389,6 +391,7 @@ body{
 			-moz-opacity: 0.8;
 			opacity:.80;
 			filter: alpha(opacity=80);
+			
 	}
 .confirm_popup_setting
 	{
@@ -398,7 +401,6 @@ body{
 			left: 7%;
 			width: 85%;
 			height: 34%;
-			background-color: #F52887;
 			z-index:1002;
 			overflow: auto;
 	}

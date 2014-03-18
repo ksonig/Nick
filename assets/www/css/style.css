@@ -75,9 +75,21 @@ header{
 	text-decoration:none;
 	color:#FFF;
     display:inline-block;
-    box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
 }
 .cost:hover{
+  color:#333;
+}
+.vote{
+	margin:20px 0 0 0;
+	padding:5px 6px;
+	background:#D27839;
+	font-size:14px;
+	border-radius:4px;
+	text-decoration:none;
+	color:#FFF;
+    display:inline-block;
+}
+.vote:hover{
   color:#333;
 }
 .active_result{
@@ -92,6 +104,20 @@ header{
 }
 .active_result:hover{
   color:#333;
+}
+
+.active_result_home{
+	margin:20px 0 0 0;
+	padding:5px 6px;
+	background:#D27839;
+	float:left;
+	display:inline-block;
+	font-size:14px;
+	border-radius:4px;
+	text-decoration:none;
+	color:#FFF;
+    box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+	
 }
 
 .active_submit{
@@ -180,13 +206,13 @@ footer{
 }
 @media(min-width:320px) and (max-width:700px){
 .center_btn{
-	margin:70px auto 0;
+	margin:85px auto 0;
 	width:80%;
 }
 .btn{
 	margin:36px auto;
 	padding:0;
-	height:40px;
+	height:50px;
 	width:91% !important;
 	text-align:center;
 }
@@ -227,10 +253,10 @@ footer{
 	
 	}
 .process_bar{
-	position:relative;
-	margin-top:100%;
-	margin-left:10%; 
-	margin-right:10%;
+	position:absolute;
+	top:65%;
+	left:10%; 
+	right:10%;
 	}
 
 /**picture page css**/
@@ -247,7 +273,6 @@ footer{
 	font-size:14px;
 	font-weight:bold;
 	background-size: 20px auto;
-	
 }
 .gold_gif{
 	text-align:center;
@@ -278,11 +303,10 @@ footer{
 	{
 			display: none;
 			position: absolute;
-			top: 25%;
+			top: 32%;
 			left: 7%;
-			width: 85%;
-			height: 40%;
-			background-color: #F52887;
+			width: 80%;
+			height: 35%;
 			z-index:1002;
 			overflow: auto;
 	}

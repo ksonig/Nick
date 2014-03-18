@@ -20,9 +20,12 @@
 	var swipePrev = 0;
 	var picArr = [];
 	var token;
+	var photo_id = [];
 	
 	
     $(document).ready(function() {
+		
+		  lightbox();
 		  
 		  document.addEventListener("backbutton", onBackKeyDown, false);
 		  
@@ -37,38 +40,68 @@
 		  pictures[8] = new Image(300, 300);
 		  pictures[9] = new Image(300, 300);
 		  
+		  
 		 // $(".next_btn").hide();
+		 
 		  $(".previous_btn").hide();
 		  
-		  token = sessionStorage.getItem("token");
-		  		  
-		   /* var formContent = 'user[picArr]='+picArr+"&user[contact]="+sessionStorage.getItem("returnContacts");
-			
-			alert(token);
-			alert(picArr.length+"pictures");
-			
-			$.ajax({
-            type:"POST",
-            beforeSend: function (request)
-            {
-               request.setRequestHeader("Authorization", token);
-            },
-            url: "http://192.168.0.121:3000/api/v1/friends.json",
-            data: formContent,
-            processData: false,
-            success: function(data) {	
-			   
-			   alert(data);
-			   
-			   location.href="process.html";
-			   			   
-            },
-			error: function (xhr, ajaxOptions, thrownError) {
-            alert(xhr.status);
-			alert(thrownError);
-      }
-			
-     });*/
+		   token = sessionStorage.getItem("token");
+		   
+		   //alert(token);
+		   		   
+		   var url = sessionStorage.getItem("global_url")+'photos.json';
+		   
+		   $.ajax({
+					   type: "GET",
+					   url: url,
+					   
+					   beforeSend: function (request)
+					   {
+						 request.setRequestHeader("Authorization", token);
+					   },
+					   data: {"user_id":sessionStorage.getItem("user_id")},
+					   success: function (returndata) 
+					   {
+						 
+						 // alert(returndata);
+						  
+						  for (var i = 0; i < returndata.length; i++) {
+							var object = returndata[i];
+							for (var property in object) {
+								//alert('item ' + i + ': ' + property + '=' + object[property]);
+								
+								if(property == "image"){
+									
+								var url = object[property].url;
+								  
+								 // alert(url);
+								  
+								  picArr.push(url);
+								  
+								   //$("#imgDisplay").attr("src", "https://dl.dropboxusercontent.com/1/view/ksxx2ouhiwpgzoj/Apps/image_voting%20%281%29/uploads/photo/image/7/pic13940011181600_.jpeg");
+		  
+								}
+								if(property == "id"){
+									
+								photo_id.push(object[property]);
+								 
+								//alert("id====="+photo_id)
+								
+							    }
+							}
+							
+							$("#imgDisplay").attr("src", picArr[0]);
+							$("#imgDisplay").val(photo_id[0]);
+							closeLightbox();
+						 }  
+						  
+					   },
+					   error: function (xhr, ajaxOptions, thrownError) 
+					   {
+						//alert("Error :"+thrownError);
+					   }
+				   });
+		 
 	      $(".active_submit").click(function(){
 			  
 			   if(swipeNext == 1){
@@ -77,20 +110,62 @@
 	      });
      });
 	
-	
+	 function vote_photo(){
+		 
+		  // alert(token);
+		   var id_val = $("#imgDisplay").attr('value');
+		  // alert(id_val); 
+		   var url = sessionStorage.getItem("global_url")+'photos/vote.json';
+		 
+		   $.ajax({
+					   type: "POST",
+					   url: url,
+					   beforeSend: function (request)
+					   {
+						   
+						 request.setRequestHeader("Authorization", token);
+					   },
+					   data: {"photo_id":id_val},
+					   success: function (returndata) 
+					   {
+						  //closeLightbox();
+						  //alert(returndata.status);
+						  location.href = "index.html";
+					   },
+					   error: function (xhr, ajaxOptions, thrownError) 
+					   {
+						//alert("Error :"+thrownError);
+					   }
+				   });
+		 
+		 }
+		 
 	 function nextImage(){
-			 
-		     document.imgDisplay.src = "img/b.jpg";
-	         $(".previous_btn").show();
-			 $(".next_btn").hide();
+		 
+			 if(img_counter>=0 && img_counter < picArr.length-1){
+				 
+				 img_counter = img_counter+1;
+				 document.imgDisplay.src = picArr[img_counter];
+				 $(".previous_btn").show();
+				 $(".next_btn").hide();
+				 $("#imgDisplay").val(photo_id[img_counter]);
+				 if(img_counter == picArr.length-1){
+					 $( ".active_submit" ).css( "background" , "#D27839");
+				 }
+				 
+			 }
 	  } 
 	  
 	  function previousImage(){
 		  
-			document.imgDisplay.src = "img/a.jpg";	
-			$(".previous_btn").hide();	
-			$(".next_btn").show();
-				  
+		     if(img_counter>0 && img_counter < picArr.length){
+				 
+				img_counter = img_counter-1;
+				document.imgDisplay.src = picArr[img_counter];
+				$(".previous_btn").hide();	
+				$(".next_btn").show();
+				$("#imgDisplay").val(photo_id[img_counter]);
+			 }
 	  }
 	  
 	  /*
@@ -98,19 +173,32 @@
 	   */
 	   
 	  $(document).off('swipeleft').on('swipeleft', function(event){   
-       	
-			  document.imgDisplay.src = "img/b.jpg";
+	  
+       	 if(img_counter>=0 && img_counter < picArr.length-1){
+			 
+			  img_counter = img_counter+1;
+			  document.imgDisplay.src = picArr[img_counter];
 	          $(".previous_btn").show();
 			  $(".next_btn").hide();
+			  $("#imgDisplay").val(photo_id[img_counter]);
+			  if(img_counter == picArr.length-1){
+					 $( ".active_submit" ).css( "background" , "#D27839");
+			  }
+			  
+		 }
 		  
 	  });
 	  
 	  $(document).off('swiperight').on('swiperight',  function(event){  
-      
-			  document.imgDisplay.src = "img/a.jpg";	
+	  
+       if(img_counter >0 && img_counter < picArr.length){
+		   
+	  		  img_counter = img_counter-1;
+			  document.imgDisplay.src = picArr[img_counter];		
 			  $(".previous_btn").hide();	
-			  $(".next_btn").show();	  
-		
+			  $("#imgDisplay").val(photo_id[img_counter]);
+			  $(".next_btn").show();	
+	   }
 	  });
 	  
 	  function onBackKeyDown() {
@@ -123,11 +211,20 @@
 		location.href="pictures.html"
       }
 	  
-	  function goHome(){
-		  
-		location.href="index.html"
+	  function goVote(){
+		  vote_photo();
+		//location.href="index.html"
       }
 	  
+	  function lightbox(){
+          document.getElementById('light').style.display='block';
+          document.getElementById('fade').style.display='block';
+      }  
+	 function closeLightbox(){
+		 
+		 document.getElementById('light').style.display='none';
+         document.getElementById('fade').style.display='none';
+	  }
 	
  </script>
 </head>
@@ -142,6 +239,17 @@
     </div>
 </header>
 
+	<!-- start  code   for   popup   -->
+				
+        <div id="light" class="confirm_popup_setting" >
+          <center>
+          		 <br /><br /> <img src="img/loading.gif"/>
+		  </center>
+        </div>
+        <div id="fade" class="confirm_no_popup"></div>
+				
+	 <!--  end  code   for   popup -->
+
 <div class="next_btn">
 	<img style="width:70%;height:8%;" src="img/next.png" onclick="nextImage()"/>
 </div>
@@ -153,18 +261,18 @@
 <center>
     <span id="">
     <a href="#" id="">
-        <img style="width:320px; height:370px;" id="imgDisplay" name = "imgDisplay" src="img/a.jpg" />
+        <img style="width:320px; height:370px;" id="imgDisplay" value="" name = "imgDisplay" src="img/bg13.jpg" />
     </a>
     </span>
 </center>
 
 <footer>
-  <div class="back_btn home_btn" onclick="goHome()">
+  <div class="back_btn home_btn" >
     	<a href="#"class="back">Home</a>
   </div>
-   <div class="cost_btn">
+   <div class="cost_btn" onclick="goVote()">
     	<a class="active_submit" href="">Vote</a>
-  </div>
+   </div>
 </footer>
 </body>
 </html>

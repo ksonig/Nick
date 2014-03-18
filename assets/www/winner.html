@@ -4,26 +4,159 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Phone Gap</title>
 <link href="css/style1.css" rel="stylesheet" type="text/css" />
-</head>
+ <script type="text/javascript" charset="utf-8" src="js/jquery-latest.js"></script>  
+ <script type="text/javascript" charset="utf-8" src="js/cordova.js"></script>
+ <script>
+ 
+ var res_url;
+ var per_win;
+ 
+ $(function() {
+	 
+	 var token = sessionStorage.getItem("token");
+	 var url = sessionStorage.getItem("global_url")+'photos/winner_photo.json';
+		 
+		  $.ajax({
+				   type: "POST",
+				   url: url,
+				   beforeSend: function (request)
+				   {
+					 lightbox(); 
+					 request.setRequestHeader("Authorization", token);
+				   },
+				   data: {},
+				   success: function (result) 
+				   {
+					   
+					res_url = result.url;
+					per_win = result.vote_percentage;
+					per_win = parseInt(per_win);
+					
+					//alert(res_url); 
+					//alert(per_win); 
+					
+					document.imgDisplay.src = res_url;
+					$(".percentage_box").html("won by "+per_win+"%");
+					closeLightbox();
+					
+				   },
+				    error: function (xhr, ajaxOptions, thrownError) 
+				   {
+					//alert(thrownError);
+			       }
+				 });
+	 });
+	 
+	 
+	 function save(){
+		 
+		 
+		var d = new Date();
+		var n = d.getTime();
+		var newFileName = n;
+		
+		 
+		download(res_url, "vote_picture", newFileName);
+     }
+	 
+	 function download(URL, Folder_Name, File_Name) {
+		 
+		 
+		//step to request a file system 
+			window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, fileSystemSuccess, fileSystemFail);
+		
+		function fileSystemSuccess(fileSystem) {
+			var download_link = encodeURI(URL);
+			ext = download_link.substr(download_link.lastIndexOf('.') + 1); //Get extension of URL
+		
+			var directoryEntry = fileSystem.root; // to get root path of directory
+			directoryEntry.getDirectory(Folder_Name, { create: true, exclusive: false }, onDirectorySuccess, onDirectoryFail); // creating folder in sdcard
+			var rootdir = fileSystem.root;
+			var fp = rootdir.fullPath; // Returns Fulpath of local directory
+		
+			fp = fp + "/" + Folder_Name + "/" + File_Name + "." + ext; // fullpath and name of the file which we want to give
+			// download function call
+			filetransfer(download_link, fp);
+		}
+		
+		function onDirectorySuccess(parent) {
+			// Directory created successfuly
+		}
+		
+		function onDirectoryFail(error) {
+			//Error while creating directory
+			//alert("Unable to create new directory: " + error.code);
+		}
+		
+		  function fileSystemFail(evt) {
+			//Unable to access file system
+			//alert(evt.target.error.code);
+		 }
+	   }
+	
+	
+       function filetransfer(download_link, fp) {
+	   var fileTransfer = new FileTransfer();
+		// File download function with URL and local path
+		fileTransfer.download(download_link, fp,
+							function (entry) {
+								
+								//alert("Picture saved successfully");
+								//alert("download complete: " + entry.fullPath);
+								location.href="index.html";
+							},
+						 function (error) {
+							 //alert("download error source " + error.source);
+							 //alert("download error target " + error.target);
+							 //alert("upload error code" + error.code);
+							    //alert("error on saving picture please try again");
+						 });
+		}	
 
+
+	 function lightbox(){
+		 
+          document.getElementById('light').style.display='block';
+          document.getElementById('fade').style.display='block';
+      }  
+	 function closeLightbox(){
+		 
+		 document.getElementById('light').style.display='none';
+         document.getElementById('fade').style.display='none';
+	  }
+
+
+
+ </script>
+</head>
 <body>
+
+<!-- start  code   for   popup   -->
+				
+        <div id="light" class="confirm_popup_setting" >
+          <center>
+          		 <br /><br /> <img src="img/loading.gif"/>
+		  </center>
+        </div>
+        <div id="fade" class="confirm_no_popup"></div>
+				
+<!--  end  code   for   popup -->
+     
 <div class="winner">
     <div class="winner_box">
         Winner
     </div>
     <div class="winner_photo">
-        <img src="img/clipart_winner.jpg" />
+        <img id="imgDisplay" name = "imgDisplay" src="img/popup_bg.jpg" />
     </div>
-    <div class="percentage_box">
-        Percentage of win
-    </div>
+    <div class="percentage_box"></div>
 </div>
 <footer>
 <div class="back_btn home_btn">
-    	<a href="index.html"class="back">Home	</a>
+    	<a href="index.html"class="back">Home</a>
   </div>
-   <div class="cost_btn">
-    	<a class="cost" href="index.html">Save</a>
+   <div class="cost_btn" onclick="save()">
+    	<a class="cost" href="#">Save</a>
     </div>
 </footer>
 </body>

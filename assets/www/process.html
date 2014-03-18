@@ -7,29 +7,99 @@
   <script type="text/javascript" charset="utf-8" src="js/jquery-latest.js"></script>  
   <script src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
   <script>
+  
+  var counterStatus = 1;
+  var token;
+  var return_id = [];
+  var status_id = [];
+  var arr = []; 
+  var myTime;
+  
   $(function() {
 	  
+	  token = sessionStorage.getItem("token");
+	  
+	  return_id = sessionStorage.getItem("return_id");
+	  
+	  var arrStr = return_id.split(/[,]/);
+	  	  
+	  for(var i=0; i<arrStr.length; i++){
+		  
+	  status_id.push(arrStr[i]);
+	  
+	  }
+	  
+	      
+	  voteStatus();
+	  
 	$( ".active_result" ).css( {"pointer-events" : "none","cursor" : "default","color" : "#333"} );
+	$( ".back" ).css( {"pointer-events" : "none","cursor" : "default","color" : "#333"} );
 	   
     $( "#progressbar" ).progressbar({
       max: 20,
       value:false
     });
-	var value=1,i=setInterval(function(){
+    
+	var value=counterStatus,i=setInterval(function(){
 		if (value > 20) clearInterval(i)
 		value++
 		$( "#progressbar" ).progressbar('value',value)
+		counterStatus = value;
 		if(value>20){
 			
 			 $( ".active_result" ).css( {"pointer-events" : "","cursor" : "","color" : "#fff"} );
+			 $( ".back" ).css( {"pointer-events" : "","cursor" : "","color" : "#fff"} );
+			 
 			 $("#vote_text").html("Completed");
+			 clearTimeout(myTime);
 			
 			}
-	},1000)
+	},9000)
+	
   });
+ 
+  function voteStatus(){
+	  
+		 // alert(token);
+		  
+		  var url = sessionStorage.getItem("global_url")+'photos/get_vote_count.json';
+		 
+		  $.ajax({
+				   type: "POST",
+				   url: url,
+				   beforeSend: function (request)
+				   {
+					 request.setRequestHeader("Authorization", token);
+				   },
+				   data: { "photo_ids" : status_id },
+				   success: function (result) 
+				   {
+				   
+					//alert(result.status ); 
+				   },
+				    error: function (xhr, ajaxOptions, thrownError) 
+				   {
+					//alert(thrownError);
+			       }
+				 });
+				   
+			myTime = setTimeout(voteStatus,20000);
+	  	  
+  }
+  
+  function goOption(){
+  
+		location.href="index.html";
+	}
+
   </script>
 </head>
 <body>
+
+<header>
+	
+   
+</header>
  
  <div class="process_bar">
    
@@ -41,7 +111,7 @@
  
 <footer>
 
-  <div class="back_btn home_btn">
+  <div class="back_btn home_btn" id="bk_btn">
     	<a href="index.html"class="back">Home</a>
   </div>
   <div class="cost_btn">

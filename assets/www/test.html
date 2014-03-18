@@ -3,84 +3,597 @@
 <head>
 
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<link href="css/style.css" rel="stylesheet" type="text/css" />
-<script type="text/javascript" charset="utf-8" src="js/cordova.js"></script>
-<script type="text/javascript" charset="utf-8" src="js/jquery-latest.js"></script>
-<script type="text/javascript" charset="utf-8">
+  
+ <link href="css/style.css" rel="stylesheet" type="text/css" />
+ <link rel="stylesheet" href="css/jquery-mob-min.css" />
+ <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />
+ <script type="text/javascript" charset="utf-8" src="js/cordova.js"></script>
+ <script type="text/javascript" charset="utf-8" src="js/jquery-latest.js"></script>    
+ <script type="text/javascript" src="js/jquery-mobile-min.js"></script>
+ <script src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
+ <script type="text/javascript" charset="utf-8">
 
-	    var imageGroup = [];
+	var pictures = new Array(10);
+	var capture_counter = 0;
+	var img_counter = 0;
+    var destinationType;
+	var pictureSource;  
+	var swipeNext = 0;
+	var swipePrev = 0;
+	var picArr = [];
+	var coin;
+	var token;
+	var imgDisplay;
+	var return_id = [];
+	var return_id_token = 0;
+	var counterStatus = 1;
+    var status_id = [];
+    var arr = []; 
+    var myTime;
+	var vote_token = 0;
+	var vote_counter = 0;
+	var id_val;
+	var submit_chk = 0;
 	
-		function browseCameraRoll() 
-		{
+	
+   $(function() {
+		
+	 		  
+		  document.addEventListener("backbutton", onBackKeyDown, false);
+		  
+          pictureSource = navigator.camera.PictureSourceType;
+          destinationType = navigator.camera.DestinationType;
+		  imgDisplay = document.getElementById('imgDisplay');
+		  
+		  pictures[0] = new Image(300, 300);
+		  pictures[1] = new Image(300, 300);
+		  pictures[2] = new Image(300, 300);
+		  pictures[3] = new Image(300, 300);
+		  pictures[4] = new Image(300, 300);
+		  pictures[5] = new Image(300, 300);
+		  pictures[6] = new Image(300, 300);
+		  pictures[7] = new Image(300, 300);
+		  pictures[8] = new Image(300, 300);
+		  pictures[9] = new Image(300, 300);
+		  
+		  $(".process_bar").hide();
+		  $("#footer2").hide();
+		  $("#footer3").hide();
+		  $(".next_btn").hide();
+		  $(".previous_btn").hide();
+		  $("#capture_Photo2").hide();
+		  $("#capture_Photo").bind( "click",capturePhoto );
+		  
+		  token = sessionStorage.getItem("token");
+		  
+		   update_coin();
+		  
+		  
+		  $(".active_submit").click(function(){
+			  if(picArr.length<2){
+				
+				lightbox();
+				
+				$("#popup_message").html(" Can't send less then two images!");
+				
+			}else{
+				
+				  if(submit_chk == 0){
+					  for(var i =0; i<picArr.length; i++)
+					  {
+						
+						return_id_token = picArr.length;
+						send_image(i);
+					  }
+					  submit_chk = 1;
+				 }
+			  }
+		 });
+		 
+		
+		 
+		 
+    });
+	
+	function capturePhoto() {
+	 // if(vote_token == 0 && sessionStorage.getItem("coin_count") > 2){
+		if(vote_token == 0 ){
 			
-			navigator.camera.getPicture( onPhotoLoadSuccess, onFail,
-				{
-				quality: 50,
+		navigator.camera.getPicture( onPhotoDataSuccess, onFail,{
+				quality: 20,
 				destinationType: Camera.DestinationType.DATA_URL,
 				encodingType: Camera.EncodingType.JPEG,
-				} );
-		}
+				targetWidth: 1600,
+        		targetHeight: 1200,
+				saveToPhotoAlbum: true
+				});
+	   }else{
+		     
 		 
-		function onPhotoLoadSuccess( imageData )
-		{
+		 // alert(id_val); 
+		// vote_photo();
+			 
+	   }
+		  
+    }
+	
+	function onPhotoDataSuccess(imageData) {
+		
+		//alert(imageData);
+			  
+	   var src_data = "data:image/jpeg;base64," + imageData;
+		
+	   picArr.push(imageData);
+	   
+	   pictures[capture_counter].src = src_data;
+	   	   
+	   capture_counter++;
+	   	   
+	   if(capture_counter == 2){
+		   
+		   $(".cost").html("3 Coins");
+		}
+		if(capture_counter == 3){
+		   
+		   $(".cost").html("4 Coins");
+		}
+		if(capture_counter == 4){
+		   
+		   $(".cost").html("5 Coins");
+		}
+		if(capture_counter == 5){
+		   
+		   $(".cost").html("6 Coins");
+		}
+	   
+	   $(".next_btn").show();
+	   
+	   swipeNext = 1;
+	   
+	   $( ".active_submit" ).css( "background" , "#D27839");
+	   
+    }
+	
+	
+	
+	 function onFail(message) {
+		 
+      alert('Failed because: ' + message);
+	  
+    }
+	
+		
+	 function nextImage(){
+		 
+      //$("#capture_Photo").unbind( "click",capturePhoto );
+		 
+	  if(img_counter+1 == capture_counter){
+		  
+		  $(".next_btn").hide();
+		  
+		  swipeNext = 0;
+		  
+		     document.imgDisplay.src = pictures[img_counter].src;
+			 $("#imgDisplay").val(return_id[img_counter]);
 			
+		  }else{
+			  
+		     document.imgDisplay.src = pictures[img_counter].src;
+			 $("#imgDisplay").val(return_id[img_counter]);
+	  
+	         img_counter++;
+		  	  
+	      }
+	  
+	   		$(".previous_btn").show();
+	   		swipePrev = 1;
 			
-			imageGroup.push(imageData);
+	   
+	  } 
+	  
+	  function previousImage(){
+	  
+		  if(img_counter == 0){
+			  
+			document.imgDisplay.src = "img/capture.png";
+						
+			$(".previous_btn").hide();
+			swipePrev = 0;
 			
+			$("#capture_Photo").bind( "click",capturePhoto );
+			  
+		  }else{
+				  
+			img_counter--;
+		  
+			document.imgDisplay.src = pictures[img_counter].src;
+			$("#imgDisplay").val(return_id[img_counter]);	  
+				  
+		  }
+			  
+		  $(".next_btn").show();  
+		  swipeNext = 1;
+		  vote_token --;
+	  
+	  }
+	  
+	  /*
+	   *  swipe next feature
+	   */
+	   
+	  $(document).off('swipeleft').on('swipeleft', function(event){   
+       	
+		if(swipeNext == 1){
 			
+			if(img_counter+1 == capture_counter){
+			  
+			  $(".next_btn").hide();
+			  swipeNext = 0;
+			  
+			  document.imgDisplay.src = pictures[img_counter].src;
+			  $("#imgDisplay").val(return_id[img_counter]);
+		  
+			  }else{
+				  
+			  document.imgDisplay.src = pictures[img_counter].src;
+			  $("#imgDisplay").val(return_id[img_counter]);
+		  
+			  img_counter++;
+			  
+			  }
+			  
+			  $(".previous_btn").show();
+			  swipePrev = 1;
+		 }
+	  });
+
+	  $(document).off('swiperight').on('swiperight',  function(event){  
+         //alert("hiiii");
+		if(swipePrev == 1){
+			if(img_counter == 0){
+				  
+				document.imgDisplay.src = "img/capture.png";
+							
+				$(".previous_btn").hide();
+				swipePrev = 0;
+				
+				$("#capture_Photo").bind( "click",capturePhoto );
+				  
+			  }else{
+					  
+				img_counter--;
+			    
+				document.imgDisplay.src = pictures[img_counter].src;	
+				$("#imgDisplay").val(return_id[img_counter]);  
+			  }
+			    $(".next_btn").show();  
+			    swipeNext = 1;
+		  }
+	  });
+	  
+	  
+	  
+	  function update_coin(){
+		  
+		 // alert(token);
+		  
+		  var url1 = sessionStorage.getItem("global_url")+'get_coin.json';
+		  
+		  $.ajax({
+				   type: "POST",
+				   url: url1,
+				   beforeSend: function (request)
+				   {
+					 request.setRequestHeader("Authorization", token);
+				   },
+				   data: {},
+				   success: function (result) 
+				   {
+					//alert( 'back from POST: ' + result.coin_count ); 
+					
+					sessionStorage.setItem("coin_count",result.coin_count);
+					  
+					//location.href="process.html";
+				   },
+				    error: function (xhr, ajaxOptions, thrownError) 
+				   {
+					//alert(thrownError);
+			       }
+			});
+				   
+	  }
+	  
+	  function send_image(i){
+		  
+		      
+			 if(i ==  picArr.length-1){
+				 coin = i+2;
+			 } 
+			var url = sessionStorage.getItem("global_url")+'photos.json';
 			
-			var url = 'http://192.168.0.109:3000/api/v1/registration.json';
-			var params = {  		
-							 "user" : {
-                                           "email" : "ksonig5@yopmail.com",
-                                           "password" : "grepruby001",
-                                           "firstname" : "grep",
-                                           "phone_number" : "0898989994"
-                                         },
-                              "book" : {
-                                           "publisher" : "abc",
-                                           "style" : "abc",
-                                           "age" : "22",
-                                           "cover" : "xyz",
-                                           "isbn" : "12345",
-                                           "image" : { "file" : imageGroup[0],
- 
-                                                         "original_filename":"new_image.jpeg" ,
-                                                         "filename" : "new_image.jpeg" },
-                                           "promocode" : "452001"
-                                         }
-                              };
+			    var d = new Date();
+		        var n = d.getTime();
+	            var arr = []; 
+				
+			  //for(i=0; i<picArr.length; i++) {
+			  arr = {
+									   "image" : { 
+													"file" : picArr[i],
+													"filename" : "pic__"+i+"__"+n+".jpeg",
+													"original_filename" : "pic__"+i+"__"+n+".jpeg"
+													
+												  }
+											};
+						 
+				//}
+				
+				params = {  		
+								"photo" :  arr, 
+								"coin"  :  coin
+				};
+					
 		 
 			$.ajax({
 				   type: "POST",
 				   url: url,
+				   beforeSend: function (request)
+				   {  
+					 request.setRequestHeader("Authorization", token);
+				   },
 				   data: params,
 				   success: function (returndata) 
 				   {
-					alert( 'back from POST: ' + returndata ); 
-					//grayscaleImage.src = "data:image/png;base64," + returndata.GrayscaleVersion
-				   }} );
-		}
-		function onFail(message) {
-				 
-			  alert('Failed because: ' + message);
-			  
-			}
+					   
+									   
+					   return_id.push( returndata.id );
+					   
+					   return_id_token--;
+					   					   
+					   if(return_id_token == 0){
+						   
+						   vote_token = 1;
+						   processBar();
+						   $(".cost").html("Cost");
+						   nextImage();
+						   lightbox();
+				           $("#popup_message").html("Eern Gold manually by voting the image");
+						   
+						}
+					   
+				   },
+				    error: function (xhr, ajaxOptions, thrownError) 
+				   {
+					//alert(thrownError);
+			       }
+				   });
+				   
+	  }
+	  
+	  function processBar(){
+		  
+			$(".process_bar").show();
+			$("#footer1").hide();
+			$("#footer2").show();
+						 
+			  $( "#progressbar" ).progressbar({
+				  max: 20,
+				  value:false
+				});
+				var value=counterStatus,i=setInterval(function(){
+					if (value > 20) clearInterval(i)
+					value++
+					$( "#progressbar" ).progressbar('value',value)
+					counterStatus = value;
+					if(value>20){
+						
+						 //$( ".active_result" ).css( {"pointer-events" : "","cursor" : "","color" : "#fff"} );
+						 $("#vote_text").html("Completed");
+						 $("#footer2").hide();
+						 $("#footer3").show();
+						 clearTimeout(myTime);
+						
+						}
+				},9000)
 	
-
-
+			voteStatus();
+		  }
+	  
+	  
+	  function voteStatus(){
+	  
+		 // alert(token);
+		  
+		  var status_url = sessionStorage.getItem("global_url")+'photos/get_vote_count.json';
+		 
+		  $.ajax({
+				   type: "POST",
+				   url: status_url,
+				   beforeSend: function (request)
+				   {
+					 request.setRequestHeader("Authorization", token);
+				   },
+				   data: { "photo_ids" : return_id },
+				   success: function (result) 
+				   {
+					   
+					//alert(result.status ); 
+					
+					if(result.status == "completed"){
+						
+						counterStatus = 21;
+						clearTimeout(myTime);
+					}
+				   },
+				    error: function (xhr, ajaxOptions, thrownError) 
+				   {
+					//alert(thrownError);
+			       }
+				 });
+				   
+			myTime = setTimeout(voteStatus,20000);
+	  	  
+          }
+	
+	function vote_photo(){
+		
+		  // alert(token); 
+		   
+		   id_val = $("#imgDisplay").attr('value');
+		  
+		   //alert(id_val); 
+		  
+		   $(".process_bar").hide();
+		   $("#footer2").hide();
+		   $("#footer3").show();
+		   
+		   
+		   var url_vote = sessionStorage.getItem("global_url")+'photos/vote.json';
+		 
+		   $.ajax({
+					   type: "POST",
+					   url: url_vote,
+					   beforeSend: function (request)
+					   {
+						 request.setRequestHeader("Authorization", token);
+					   },
+					   data: {"photo_id":id_val},
+					   success: function (returndata) 
+					   {
+						  //closeLightbox();
+						  //alert(returndata.status);
+						  
+						  lightbox();
+				          $("#popup_message").html(" vote picture successfully ");
+						  
+						  //location.href = "winner.html";
+					   },
+					   error: function (xhr, ajaxOptions, thrownError) 
+					   {
+						alert("Error :"+thrownError);
+					   }
+				   });
+		 
+		 }
+		 
+	     
+	  function onBackKeyDown() {
+		
+		//location.href="index.html";
+      }
+	  
+	  function gotoWinner(){
+		  
+		  location.href="winner.html";
+	  }
+	  
+	  function goBack(){
+		
+		location.href="index.html";
+	  }
+	  function goGold(){
+		
+		location.href="gold.html";
+	  }
+	  
+	  function lightbox(){
+          document.getElementById('light').style.display='block';
+          document.getElementById('fade').style.display='block';
+      }  
+	 function closeLightbox(){
+		 
+		 document.getElementById('light').style.display='none';
+         document.getElementById('fade').style.display='none';
+	  }
+	
  </script>
 </head>
 <body>
+    <header>
+        <div class="back_btn" onclick="goGold();">
+            <a href="#"class="back">Back </a>
+        </div>
+           
+        <div class="get_opinion">
+            <a href="#">Get Opinion!</a>
+        </div>
+          
+        <div class="cost_btn">
+            <a class="cost" href="#">Cost</a>
+        </div>
+    </header>
 
-<center>
-    <span id="capture_button">
-    <a href="#" onclick="browseCameraRoll();">
-        <img name = "imgDisplay" src="img/capture.png" />
-    </a>
-    </span>
-</center>
 
+	<!-- start  code   for   popup   -->
+				
+        <div id="light" class="confirm_popup_setting" style="background-image:url('img/popup_bg.jpg');">
+          <center>
+          		  <p><h2 id="popup_message"> </h2></p><br />
+		  </center>
+          <center><div style="position:relative;margin-top:5%;width:50%;"><button onclick="closeLightbox()">Close</button></center>
+        </div>
+        <div id="fade" class="confirm_no_popup"></div>
+				
+	 <!--  end  code   for   popup -->
+     
+     <!-- start  code   for   process bar  -->
+     
+     <div class="process_bar">
+   
+   		    <center><p id="vote_text"> Voting in process ... </p></center>
+   			<div id="progressbar"></div>
+   
+ 	 </div>
+     
+     <!-- end code   for   process bar  -->
 
+     <div class="next_btn">
+            <img style="width:70%;height:8%;" src="img/next.png" onclick="nextImage()"/>
+        </div>
+        
+        <div class="previous_btn">
+            <img style="width:18%;height:8%;" src="img/previous.png" onclick="previousImage()"/>
+        </div>
+        
+        <center>
+            <span id="capture_button">
+            <a href="#" id="capture_Photo">
+                <img style="width:100%; height:370px;" value="" id="imgDisplay" name = "imgDisplay"  src="img/capture.png" />
+            </a>
+            </span>
+        </center>
+    
+    
+        <footer id = "footer1">
+        
+          <div class="back_btn home_btn" onclick="goBack()">
+                <a href="#"class="back">Home</a>
+          </div>
+           <div class="cost_btn">
+                <a class="active_submit" href="">Submit</a>
+          </div>
+          
+        </footer>
+        
+        <footer id= "footer2">
+        
+          <div class="back_btn home_btn" onClick="#">
+                <a href="#"class="back">Home</a>
+          </div>
+           <div class="cost_btn" onclick="vote_photo()">
+                <a class="vote" href="">Vote</a>
+           </div>
+           
+		</footer>
+        
+        <footer id= "footer3">
+
+          <div class="back_btn home_btn" onClick="goBack()">
+                <a href="#"class="back">Home</a>
+          </div>
+          <div class="cost_btn" onclick="gotoWinner()">
+                <a class="vote" href="#" >Result</a>
+          </div>
+          
+        </footer>
 </body>
 </html>

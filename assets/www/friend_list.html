@@ -14,6 +14,8 @@ var cName   = new Array();
 var returnContacts = new Array();
 var search_text ="";
 var contacts = [];
+var databaseContacts = [];
+
 		/*[
 			{ value: 'Afghan afghani' },
 			{ value: 'Albanian lek' },
@@ -32,30 +34,13 @@ var contacts = [];
 $(document).ready(function(){
 	
 	var height = window.innerHeight;
-	
 	//var width = window.innerWidth;
 	
-	height= (height*2)/3+30;
+	height = (height*2)/3+30;
     
  	$("#device_scale").css("height", height+"px");
-		
-		
-	/*
-	 *  auto complete code  
-	 */
-	 
-	     
-
 	
-  			$('#autocomplete').autocomplete({
-    			lookup: contacts,
-    			onSelect: function (suggestion) {
-      			  //$('#outputcontent').html(suggestion.value);
-    			}
-  			});
-		
-	
-});
+ });
 
     document.addEventListener("deviceready", onDeviceReady, false);
 
@@ -67,7 +52,7 @@ $(document).ready(function(){
         options.filter="";          // empty search string returns all contacts
         options.multiple=true;      // return multiple results
         filter = ["displayName","phoneNumbers"];   // return contact.displayName field
-      
+        
         navigator.contacts.find(filter, onSuccess, onError, options);
     }
 
@@ -84,9 +69,9 @@ $(document).ready(function(){
 		  // $( "section" ).append( "<table><tr><td><input type='checkbox' style='padding:10px' value='' /></td><td><p>"+contacts[i].displayName+"</p></td></tr></table><hr />" );	
 		   
            for (var j=0; j<contacts[i].phoneNumbers.length; j++) {
+			   
                 //alert("Type: " + contacts[i].phoneNumbers[j].type + "\n" + "Value: "  + contacts[i].phoneNumbers[j].value + "\n" + "Preferred: "  + contacts[i].phoneNumbers[j].pref);
-			
-				
+							
 				cNumber[i] = contacts[i].phoneNumbers[j].value;
 				cNumber[i] = cNumber[i].replace(/\s+/g, '');
 				if(cNumber[i].length == 10){
@@ -103,10 +88,11 @@ $(document).ready(function(){
 		
 			var token = sessionStorage.getItem("token");
 	
+	       // alert(token);
+			
 	        var formContent = 'user[contact]='+cNumber;
 			
-			alert(token);
-			alert(formContent);
+			//alert(formContent);
 			
 			$.ajax({
             type:"POST",
@@ -114,28 +100,33 @@ $(document).ready(function(){
             {
                request.setRequestHeader("Authorization", token);
             },
-            url: "http://192.168.0.121:3000/api/v1/friends.json",
+            url: sessionStorage.getItem("global_url")+'friends.json',
             data: formContent,
             processData: false,
             success: function(data) {	
+			
+			  // alert(data);
                
 			   returnContacts = data.contact;
 			   
 			   sessionStorage.setItem("returnContacts",returnContacts);
 			   
-			   alert(data.contact);
+			  // alert(data.contact);
 			   
-			   for(var i=0; i < returnContacts.length; i++){
+			    for(var i=0; i < returnContacts.length; i++){
 				   
 				  // alert(returnContacts[i]);
 				   
-				   for(var j = 0; j<cNumber.length; j++){
+				  for(var j = 0; j<cNumber.length; j++){
 					   
-					   //  alert(cNumber[j]);
+					   // alert(cNumber[j]);
 					   
 					  if("+"+returnContacts[i] == cNumber[j]){
 						  
-						  alert(cName[j]);
+						//  alert(cName[j]);
+						
+						 databaseContacts.push( cName[j] );
+						 
 						 $( "section" ).append( "<table><tr><td width='10%'><input type='checkbox' style='padding:10px; width:50px; height:10px; ' value='' /></td><td width='90%'><p>"+cName[j]+"</p></td></tr></table><hr />" );	
 		 
 						 // searchArr[i] = cName[j];
@@ -144,10 +135,21 @@ $(document).ready(function(){
 					}
 			     }
 				 
-			  // var db = window.openDatabase("Database", "1.0", "PhoneGap USER", 20000);
-    		  // db.transaction(populateDB, errorCB, successCB);
-			   
+				 var db = window.openDatabase("Database", "1.0", "PhoneGap USER", 20000);
+       			 db.transaction(populateDB, errorCB, successCB);
+				    
+				/*
+				 *  auto complete code  
+				 */
+				 
+				$('#autocomplete').autocomplete({
+					lookup: databaseContacts,
+					onSelect: function (suggestion) {
+					  //$('#outputcontent').html(suggestion.value);
+					}
+				});
             },
+			
 			error: function (xhr, ajaxOptions, thrownError) {
             alert(xhr.status);
 			alert(thrownError);
@@ -155,8 +157,7 @@ $(document).ready(function(){
 			
     });
 	
-	   var db = window.openDatabase("Database", "1.0", "PhoneGap USER", 20000);
-       db.transaction(populateDB, errorCB, successCB);
+	   
 			  
     };
 
@@ -175,27 +176,26 @@ $(document).ready(function(){
 	function searchContact(){
 		
 		search_text = $("#autocomplete").val();
-		var db = window.openDatabase("Database", "1.0", "PhoneGap USER", 20000);
-		db.transaction(queryDB, errorCB);
+		if(search_text != ""){
+			var db = window.openDatabase("Database", "1.0", "PhoneGap USER", 20000);
+			db.transaction(queryDB, errorCB);
+		}
 		
 	}
-	
-	
 	
 	  function populateDB(tx) {
 			tx.executeSql('DROP TABLE IF EXISTS CONTACT');
 			tx.executeSql('CREATE TABLE IF NOT EXISTS CONTACT (id unique, data)');
-			for(var i = 0; i< cName.length; i++){
+			for(var i = 0; i< databaseContacts.length; i++){
 			
-				tx.executeSql('INSERT INTO CONTACT (id, data) VALUES ('+i+', "'+cName[i]+'")');
-				//alert(cName[i]);
+				tx.executeSql('INSERT INTO CONTACT (id, data) VALUES ('+i+', "'+databaseContacts[i]+'")');
+				//alert(databaseContacts[i]);
 			}	
       }
 
 	  function queryDB(tx) {
 		//window.location = "index.html"; 
-		
-		alert("success called");
+		//alert("success called");
 				
 		tx.executeSql('SELECT * FROM CONTACT WHERE Data LIKE "%'+search_text+'%"', [], querySuccess, errorCB);
 	  }
@@ -203,10 +203,14 @@ $(document).ready(function(){
       function querySuccess(tx, results) {
 		var len = results.rows.length;
 		console.log("CONTACT table: " + len + " rows found.");
+		
+		 $( "section" ).html("");
 		for (var i=0; i<len; i++){
 			
-			alert(" ID = " + results.rows.item(i).id + " Data =  " + results.rows.item(i).data);
+			//alert(" ID = " + results.rows.item(i).id + " Data =  " + results.rows.item(i).data);
 			
+			$( "section" ).append( "<table><tr><td width='10%'><input type='checkbox' style='padding:10px; width:50px; height:10px; ' value='' /></td><td width='90%'><p>"+results.rows.item(i).data+"</p></td></tr></table><hr />" );	
+		 
 			contacts.push({ value:  results.rows.item(i).data });
 		 
 
@@ -219,10 +223,10 @@ $(document).ready(function(){
 	  }
 
 	
-	function successCB() {
-		//var db = window.openDatabase("Database", "1.0", "PhoneGap USER", 20000);
-		//db.transaction(queryDB, errorCB);
-	}
+	  function successCB() {
+			//var db = window.openDatabase("Database", "1.0", "PhoneGap USER", 20000);
+			//db.transaction(queryDB, errorCB);
+	  }
 	  
 	  
 	
@@ -232,6 +236,7 @@ $(document).ready(function(){
 
 <body>
 <header>
+
 	<div class="back_btn friend_list_back_btn">
     	<a href="index.html"class="back">Back</a>
     </div>

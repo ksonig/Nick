@@ -19,13 +19,18 @@
 	var swipeNext = 0;
 	var swipePrev = 0;
 	var picArr = [];
+	var coin;
 	var token;
 	var imgDisplay;
+	var return_id = [];
+	var return_id_token = 0;
+	var submit_chk = 0;
 	
     document.addEventListener("deviceready",onDeviceReady,false);
      
 	function onDeviceReady() {
-		
+		  
+		  		  
 		  document.addEventListener("backbutton", onBackKeyDown, false);
 		  
           pictureSource = navigator.camera.PictureSourceType;
@@ -49,66 +54,50 @@
 		  $("#capture_Photo").bind( "click",capturePhoto );
 		  
 		  token = sessionStorage.getItem("token");
-		 
+		  
+		   update_coin();
+		  
 		  
 		  $(".active_submit").click(function(){
-			  
-			  alert(token);  	
-			  
-			if(picArr.length<2){
+			  if(picArr.length<1){
 				
-				alert("Can't send less then two images!");
+				lightbox();
 				
 			}else{
+				
+				if(submit_chk == 0){
+					  for(var i =0; i<picArr.length; i++)
+					  {
+						
+						return_id_token = picArr.length;
+						send_image(i);
+					  }
+					  submit_chk = 1;
+				 }
+			  
+			 /* for(var j=0; j<return_id.length; j++){
 				  
-			var url = 'http://192.168.0.109:3000/api/v1/registration.json';
-			var params = {  		
-							 "user" : {
-                                           "email" : "ksonig6@yopmail.com",
-                                           "password" : "grepruby001",
-                                           "firstname" : "grep",
-                                           "phone_number" : "0898989995"
-                                         },
-                              "book" : {
-                                           "publisher" : "abc",
-                                           "style" : "abc",
-                                           "age" : "22",
-                                           "cover" : "xyz",
-                                           "isbn" : "12345",
-                                           "image" : { "file" : picArr[0],
-										   				"other_images":picArr,
-                                                         "original_filename":"new_image.jpeg" ,
-                                                         "filename" : "new_image.jpeg" },
-                                           "promocode" : "452001"
-                                         }
-                              };
-		 
-			$.ajax({
-				   type: "POST",
-				   url: url,
-				   data: params,
-				   success: function (returndata) 
-				   {
-					alert( 'back from POST: ' + returndata ); 
-					//grayscaleImage.src = "data:image/png;base64," + returndata.GrayscaleVersion
-				   }} );
-			
-	 
-	      if(swipeNext > 0){
-	      	location.href="process.html";
-		  }
-	  }
-	});
-			
+				alert("return"+return_id[i]);  
+				  
+			  }*/
+			   
+			}
+		 });
     }
 	
 	function capturePhoto() {
-		navigator.camera.getPicture( onPhotoDataSuccess, onFail,
+		if(sessionStorage.getItem("coin_count") > 2){
+		 navigator.camera.getPicture( onPhotoDataSuccess, onFail,
 				{
-				quality: 50,
+				quality: 20,
 				destinationType: Camera.DestinationType.DATA_URL,
 				encodingType: Camera.EncodingType.JPEG,
+				targetWidth: 1600,
+        		targetHeight: 1200
 				});
+		}else{
+		   alert("you don't have sufficient coin");
+		}
     }
 	
 	function onPhotoDataSuccess(imageData) {
@@ -120,6 +109,23 @@
 	   pictures[capture_counter].src = src_data;
 	   	   
 	   capture_counter++;
+	   	   
+	   if(capture_counter == 2){
+		   
+		   $(".cost").html("3 Coins");
+		}
+		if(capture_counter == 3){
+		   
+		   $(".cost").html("4 Coins");
+		}
+		if(capture_counter == 4){
+		   
+		   $(".cost").html("5 Coins");
+		}
+		if(capture_counter == 5){
+		   
+		   $(".cost").html("6 Coins");
+		}
 	   
 	   $(".next_btn").show();
 	   
@@ -127,19 +133,17 @@
 	   
 	   $( ".active_submit" ).css( "background" , "#D27839");
 	   
-	   
     }
 	
 	
 	
 	 function onFail(message) {
 		 
-      alert('Failed because: ' + message);
+     // alert('Failed because: ' + message);
 	  
     }
 	
-	
-	
+		
 	 function nextImage(){
 		 
       $("#capture_Photo").unbind( "click",capturePhoto );
@@ -147,6 +151,7 @@
 	  if(img_counter+1 == capture_counter){
 		  
 		  $(".next_btn").hide();
+		  
 		  swipeNext = 0;
 		  
 		     document.imgDisplay.src = pictures[img_counter].src;
@@ -217,7 +222,7 @@
 	  });
 
 	  $(document).off('swiperight').on('swiperight',  function(event){  
-        // alert("hiiii");
+         //alert("hiiii");
 		if(swipePrev == 1){
 			if(img_counter == 0){
 				  
@@ -233,14 +238,112 @@
 				img_counter--;
 			    
 				document.imgDisplay.src = pictures[img_counter].src;	  
-					  
+			  }
 			    $(".next_btn").show();  
 			    swipeNext = 1;
-			 
-			  }
-				
 		  }
 	  });
+	  
+	  
+	  
+	  function update_coin(){
+		  
+		  //alert(token);
+		  
+		  var url1 = sessionStorage.getItem("global_url")+'get_coin.json';
+		  
+		  $.ajax({
+				   type: "POST",
+				   url: url1,
+				   beforeSend: function (request)
+				   {
+					 request.setRequestHeader("Authorization", token);
+				   },
+				   data: {},
+				   success: function (result) 
+				   {
+					//alert( 'back from POST: ' + result.coin_count ); 
+					//location.href="process.html";
+					if(result.coin_count > 0){
+					  sessionStorage.setItem("coin_count",result.coin_count);
+					}else{
+					  sessionStorage.setItem("coin_count","0");
+					}
+					
+				   },
+				    error: function (xhr, ajaxOptions, thrownError) 
+				   {
+					//alert(thrownError);
+			       }
+				   });
+				   
+	  }
+	  
+	  function send_image(i){
+		      
+			  	
+			 if(i ==  picArr.length-1){
+				 coin = i+2;
+			 } 
+			var url = sessionStorage.getItem("global_url")+'photos.json';
+			
+			    var d = new Date();
+		        var n = d.getTime();
+	            var arr = []; 
+				
+			  //for(i=0; i<picArr.length; i++) {
+			  arr = {
+									   "image" : { 
+													"file" : picArr[i],
+													"filename" : "pic"+n+""+i+" .jpeg",
+													"original_filename" : "pic"+n+""+i+".jpeg"
+													
+												  }
+											};
+						 
+				//}
+				
+				params = {  		
+								"photo" :  arr, 
+								"coin"   : coin
+				};
+					
+		 
+			$.ajax({
+				   type: "POST",
+				   url: url,
+				   beforeSend: function (request)
+				   {  
+					 request.setRequestHeader("Authorization", token);
+				   },
+				   data: params,
+				   success: function (returndata) 
+				   {
+					   //alert(returndata.id);
+					   
+					   return_id.push( returndata.id );
+					   
+					   return_id_token--;
+					   
+					   if(return_id_token == 0){
+					
+						  sessionStorage.setItem("return_id",return_id);
+						  
+						  location.href="process.html";
+						}
+					   
+				   },
+				    error: function (xhr, ajaxOptions, thrownError) 
+				   {
+					//alert(thrownError);
+			       }
+				   });
+				   
+	    
+		  
+	  }
+	  
+	  
 	  
 	  function onBackKeyDown() {
 		
@@ -278,7 +381,7 @@
     	<a href="#">Get Opinion!</a>
     </div>
       
-    <div class="cost_btn" onclick="lightbox()">
+    <div class="cost_btn">
     	<a class="cost" href="#">Cost</a>
     </div>
 </header>
@@ -288,18 +391,13 @@
 				
         <div id="light" class="confirm_popup_setting" style="background-image:url('img/popup_bg.jpg');">
           <center>
-          		  <p> 3 gold for 2 photos </p>
-                  <p> 4 gold for 3 photos </p>
-                  <p> 5 gold for 4 photos </p>
-                  <p> 6 gold for 5 photos </p>
-		</center>
+          		  <p><h2> Can't send less then two images! </h2></p><br />
+		  </center>
           <center><div style="position:relative;margin-top:5%;width:50%;"><button onclick="closeLightbox()">Close</button></center>
         </div>
         <div id="fade" class="confirm_no_popup"></div>
 				
 	 <!--  end  code   for   popup -->
-
-
 
 <div class="next_btn">
 	<img style="width:70%;height:8%;" src="img/next.png" onclick="nextImage()"/>
@@ -312,7 +410,7 @@
 <center>
     <span id="capture_button">
     <a href="#" id="capture_Photo">
-        <img style="width:320px; height:370px;" id="imgDisplay" name = "imgDisplay" src="img/capture.png" />
+        <img style="width:100%; height:370px;" id="imgDisplay" name = "imgDisplay"  src="img/capture.png" />
     </a>
     </span>
 </center>

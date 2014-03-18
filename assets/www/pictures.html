@@ -8,62 +8,175 @@
 <script type="text/javascript" charset="utf-8" src="js/cordova.js"></script>
 <script>
 
-	var returnNaumbers = new Array();
-	
-	document.addEventListener("deviceready",onDeviceReady,false);
-     
-	function onDeviceReady() {
+    var returnNaumbers = new Array();
+	var token;
+	var user_id = [];
+	var user_phone = [];
+	var cNumber = new Array(); 
+	var cName   = new Array(); 
+	var contacts = [];
+    var name_token = 0; 
+	 
+    document.addEventListener("deviceready", onDeviceReady, false);
+
+    function onDeviceReady() {
 		
+		  var options = new ContactFindOptions();
+		  options.filter="";          // empty search string returns all contacts
+		  options.multiple=true;      // return multiple results
+		  filter = ["displayName","phoneNumbers"];   // return contact.displayName field
+		  navigator.contacts.find(filter, onSuccess, onError, options);
+		  	  
+		  	 
+		  var height = window.innerHeight;
+		  height= height*6/7;
+ 		  $("#device_scale").css("height", height+"px");
+		 
+		  /* get friend */
 		
-		 var height = window.innerHeight;
-		 height= height*6/7;
- 		 $("#device_scale").css("height", height+"px");
-	
-		 $( "section" ).append( "<table><tr onclick='location.href=\"vote_picture.html\"'><td width='88%'><p>Abc</p></td><td width='12%'><img src='img/arrow-next.png'></td></tr></table><hr />" );	
-		 $( "section" ).append( "<table><tr onclick='location.href=\"vote_picture.html\"'><td width='88%'><p>Abc</p></td><td width='12%'><img src='img/arrow-next.png'></td></tr></table><hr />" );	
-		 $( "section" ).append( "<table><tr onclick='location.href=\"vote_picture.html\"'><td width='88%'><p>Abc</p></td><td width='12%'><img src='img/arrow-next.png'></td></tr></table><hr />" );	
-		 $( "section" ).append( "<table><tr onclick='location.href=\"vote_picture.html\"'><td width='88%'><p>Abc</p></td><td width='12%'><img src='img/arrow-next.png'></td></tr></table><hr />" );	
-		 $( "section" ).append( "<table><tr onclick='location.href=\"vote_picture.html\"'><td width='88%'><p>Abc</p></td><td width='12%'><img src='img/arrow-next.png'></td></tr></table><hr />" );	
-		 $( "section" ).append( "<table><tr onclick='location.href=\"vote_picture.html\"'><td width='88%'><p>Abc</p></td><td width='12%'><img src='img/arrow-next.png'></td></tr></table><hr />" );	
-		 $( "section" ).append( "<table><tr onclick='location.href=\"vote_picture.html\"'><td width='88%'><p>Abc</p></td><td width='12%'><img src='img/arrow-next.png'></td></tr></table><hr />" );	
-		 $( "section" ).append( "<table><tr onclick='location.href=\"vote_picture.html\"'><td width='88%'><p>Abc</p></td><td width='12%'><img src='img/arrow-next.png'></td></tr></table><hr />" );	
-		 $( "section" ).append( "<table><tr onclick='location.href=\"vote_picture.html\"'><td width='88%'><p>Abc</p></td><td width='12%'><img src='img/arrow-next.png'></td></tr></table><hr />" );	
-		 $( "section" ).append( "<table><tr onclick='location.href=\"vote_picture.html\"'><td width='88%'><p>Abc</p></td><td width='12%'><img src='img/arrow-next.png'></td></tr></table><hr />" );	
-		 $( "section" ).append( "<table><tr onclick='location.href=\"vote_picture.html\"'><td width='88%'><p>Abc</p></td><td width='12%'><img src='img/arrow-next.png'></td></tr></table><hr />" );	
 		 
+		  token = sessionStorage.getItem("token");
+		  //alert(token);
+	      
+		 /* $( "section" ).append( "<table><tr onclick='location.href=\"vote_picture.html\"'><td width='88%'><p>Abc</p></td><td width='12%'><img src='img/arrow-next.png'></td></tr></table><hr />" );	
+		 */	 
+		 document.addEventListener("backbutton", onBackKeyDown, false);
+		
+		 var url = sessionStorage.getItem("global_url")+'photos/sender_list.json';
+		 var params = "";
 		 
-		 
-		document.addEventListener("backbutton", onBackKeyDown, false);
+		
+			$.ajax({
+					   type: "GET",
+					   url: url,
+					   beforeSend: function (request)
+					   {
+						   
+						 request.setRequestHeader("Authorization", token);
+					   },
+					   data: params,
+					   success: function (returndata) 
+					   {
+						   //alert(returndata);
+						  
+					    
+						for (var i = 0; i < returndata.length; i++) {
+							var object = returndata[i];
+							for (var property in object) {
+								
+								//alert('item ' + i + ': ' + property + '=' + object[property]);
+								
+								if(property=="id"){
+									
+									user_id.push(object[property]);
+									//alert(user_id[i]);
+								}
+								
+								if(property=="phone"){
+									
+									user_phone.push("+"+object[property]);
+									//alert(user_phone[i]);
+								}
+							}
+						}  
+					
+				  		for(var i = 0; i < returndata.length; i++){
+							
+							for(var j = 0; j < cNumber.length; j++){
+								
+								if(cNumber[j] == user_phone[i]){
+								   	
+									$( "section" ).append( "<table class='name_for_vote' value='"+user_id[i]+"'><tr><td width='88%'><p>"+cName[j]+"</p></td><td width='12%'><img src='img/arrow-next.png'></td></tr></table><hr />" );	
+		          		            name_token = 1;
+								}
+							}
+							
+							if(name_token == 0){
+							  $( "section" ).append( "<table class='name_for_vote' value='"+user_id[i]+"'><tr><td width='88%'><p>"+user_phone[i]+"</p></td><td width='12%'><img src='img/arrow-next.png'></td></tr></table><hr />" );	
+		          		     } 
+							
+							name_token = 0;
+						}
+						
+					   },
+					   
+					   error: function (xhr, ajaxOptions, thrownError) 
+					   {
+						//alert("Error :"+thrownError);
+					   }
+					   					   
+				   });
+				   
+				    $(".name_for_vote").live('click',function(){
+			        
+						var val = $(this).attr('value');	
+						//alert(val);		 
+						sessionStorage.setItem("user_id",val);
+						location.href="vote_picture.html";
+		 			});
 	}
-	
+
+    function onSuccess(contacts) {
+		
+		 var country_code =  sessionStorage.getItem("country_code");
+		
+        for (var i=0; i<contacts.length; i++) {
+        
+          if(contacts[i].phoneNumbers != null){
+			  
+			  cName[i] = contacts[i].displayName;
+          
+           for (var j=0; j<contacts[i].phoneNumbers.length; j++) {
+			     
+                //alert("Type: " + contacts[i].phoneNumbers[j].type + "\n" + "Value: "  + contacts[i].phoneNumbers[j].value + "\n" + "Preferred: "  + contacts[i].phoneNumbers[j].pref);
+							
+				cNumber[i] = contacts[i].phoneNumbers[j].value;
+				cNumber[i] = cNumber[i].replace(/\s+/g, '');
+				if(cNumber[i].length == 10){
+					
+					cNumber[i] = country_code+cNumber[i];
+				}
+				
+				 //alert(contacts[i].displayName);
+				 //alert(cNumber[i]);
+				
+            }
+           }
+        }
+		
+	};
+
+   
+    function onError(contactError){
+        //alert('onError!');
+    }
 	 function onBackKeyDown() {
 		
-		location.href="index.html";
+		   location.href="index.html";
       }
-	  
-	  function goBack(){
+	 function goBack(){
 		  
 		  location.href="index.html";
 	  }
-	
+	  
+	  
 </script>
 </head>
 
 <body>
-<header>
-	<div class="back_btn" onclick="goBack();">
-    	<a href="#"class="back">Back </a>
+    <header>
+        <div class="back_btn" onclick="goBack();">
+            <a href="#"class="back">Back </a>
+        </div>
+           
+        <div class="get_opinion">
+            <a href="#">Earn Gold!</a>
+        </div>
+          
+    </header>
+    
+    <div id="device_scale" style="overflow:auto;">
+        <section></section>
     </div>
-       
-    <div class="get_opinion">
-    	<a href="#">Pictures!</a>
-    </div>
-      
-</header>
-
-<div id="device_scale" style="overflow:auto;">
-	<section></section>
-</div>
-
 </body>
 </html>
